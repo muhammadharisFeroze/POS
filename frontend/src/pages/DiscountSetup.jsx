@@ -20,6 +20,8 @@ const DiscountSetup = () => {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
     const [dialogOpen, setDialogOpen] = useState(false);
     const [editMode, setEditMode] = useState(false);
     const [currentDiscount, setCurrentDiscount] = useState(null);
@@ -176,6 +178,17 @@ const DiscountSetup = () => {
         searchTerm === ''
     );
 
+    // Pagination logic
+    const totalPages = Math.ceil(filteredDiscounts.length / pageSize);
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    const paginatedDiscounts = filteredDiscounts.slice(startIndex, endIndex);
+
+    // Reset to first page when search changes
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm]);
+
     if (loading) {
         return (
             <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
@@ -217,7 +230,7 @@ const DiscountSetup = () => {
                 <Input
                     placeholder="Search by name, barcode, or category..."
                     value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onInput={(e) => setSearchTerm(e.target.value)}
                     style={{ flex: 1, maxWidth: '400px' }}
                 />
                 <Button
@@ -249,8 +262,8 @@ const DiscountSetup = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {filteredDiscounts.map((discount, index) => (
-                                <tr key={discount.id} style={{ borderBottom: index < filteredDiscounts.length - 1 ? '1px solid #f0f0f0' : 'none' }}>
+                            {paginatedDiscounts.map((discount, index) => (
+                                <tr key={discount.id} style={{ borderBottom: index < paginatedDiscounts.length - 1 ? '1px solid #f0f0f0' : 'none' }}>
                                     <td style={{ padding: '16px', color: '#1a1a1a', fontSize: '14px', fontWeight: '500' }}>{discount.product_name}</td>
                                     <td style={{ padding: '16px', color: '#2563eb', fontSize: '14px', fontWeight: '700', textAlign: 'center' }}>{discount.discount_percent}%</td>
                                     <td style={{ padding: '16px', color: '#666666', fontSize: '14px', textAlign: 'center' }}>{new Date(discount.valid_from).toLocaleDateString()}</td>
@@ -309,6 +322,78 @@ const DiscountSetup = () => {
                 {filteredDiscounts.length === 0 && (
                     <div style={{ textAlign: 'center', padding: '40px', color: '#666666' }}>
                         No discounts found
+                    </div>
+                )}
+
+                {/* Pagination Controls */}
+                {filteredDiscounts.length > 0 && (
+                    <div style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        marginTop: '20px',
+                        padding: '16px',
+                        background: '#fafafa',
+                        borderRadius: '6px'
+                    }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <Label>Rows per page:</Label>
+                            <Select
+                                value={pageSize.toString()}
+                                onChange={(e) => {
+                                    setPageSize(parseInt(e.detail.selectedOption.value));
+                                    setCurrentPage(1);
+                                }}
+                                style={{ width: '80px' }}
+                            >
+                                <Option value="5">5</Option>
+                                <Option value="10">10</Option>
+                                <Option value="20">20</Option>
+                                <Option value="50">50</Option>
+                                <Option value="100">100</Option>
+                            </Select>
+                            <Text style={{ color: '#666', fontSize: '14px', marginLeft: '16px' }}>
+                                Showing {startIndex + 1}-{Math.min(endIndex, filteredDiscounts.length)} of {filteredDiscounts.length}
+                            </Text>
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                            <Button
+                                design="Transparent"
+                                onClick={() => setCurrentPage(1)}
+                                disabled={currentPage === 1}
+                                style={{ minWidth: '40px' }}
+                            >
+                                ⟪
+                            </Button>
+                            <Button
+                                design="Transparent"
+                                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                                disabled={currentPage === 1}
+                                style={{ minWidth: '40px' }}
+                            >
+                                ‹
+                            </Button>
+                            <Text style={{ fontSize: '14px', fontWeight: '500', margin: '0 12px' }}>
+                                Page {currentPage} of {totalPages}
+                            </Text>
+                            <Button
+                                design="Transparent"
+                                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                                disabled={currentPage === totalPages}
+                                style={{ minWidth: '40px' }}
+                            >
+                                ›
+                            </Button>
+                            <Button
+                                design="Transparent"
+                                onClick={() => setCurrentPage(totalPages)}
+                                disabled={currentPage === totalPages}
+                                style={{ minWidth: '40px' }}
+                            >
+                                ⟫
+                            </Button>
+                        </div>
                     </div>
                 )}
             </div>

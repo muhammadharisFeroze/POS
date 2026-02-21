@@ -1,5 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
+import { useLoading } from '../context/LoadingContext';
+import { setLoadingCallbacks } from '../services/api';
 import MainLayout from '../layout/MainLayout';
 import Login from '../pages/Login';
 import Dashboard from '../pages/Dashboard';
@@ -23,6 +26,13 @@ const ProtectedRoute = ({ children }) => {
 };
 
 const AppRoutes = () => {
+  const { showLoading, hideLoading } = useLoading();
+
+  // Connect API interceptors with loading context
+  useEffect(() => {
+    setLoadingCallbacks(showLoading, hideLoading);
+  }, [showLoading, hideLoading]);
+
   return (
     <BrowserRouter>
       <Routes>

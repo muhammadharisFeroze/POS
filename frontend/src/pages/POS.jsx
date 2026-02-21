@@ -158,7 +158,7 @@ const POS = () => {
             <Input
               placeholder="🔍 Search products by name or scan barcode..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onInput={(e) => setSearchTerm(e.target.value)}
               style={{ width: '100%', fontSize: '16px', padding: '12px' }}
             />
           </div>
@@ -196,6 +196,9 @@ const POS = () => {
                   </div>
                   <div className="product-info">
                     <div className="product-name">{product.name}</div>
+                    <div className="product-name">
+                      SKU: {product.barcode}
+                    </div>
                     <div className="product-price">
                       Rs. {product.price}
                       {hasDiscount && (
@@ -360,7 +363,7 @@ const POS = () => {
                     <Label style={{ fontSize: '13px', fontWeight: '600', color: '#666' }}>CNIC (Optional)</Label>
                     <Input
                       value={cnic}
-                      onChange={(e) => {
+                      onInput={(e) => {
                         let value = e.target.value;
                         
                         // Remove all non-digit characters

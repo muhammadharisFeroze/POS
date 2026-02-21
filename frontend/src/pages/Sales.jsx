@@ -113,7 +113,7 @@ const Sales = () => {
         <Input
           placeholder="Search by invoice number, customer name, CNIC, or transaction ID..."
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onInput={(e) => setSearchTerm(e.target.value)}
           style={{ width: '100%', maxWidth: '500px' }}
         />
       </div>

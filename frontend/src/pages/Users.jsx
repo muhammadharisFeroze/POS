@@ -22,6 +22,9 @@ const Users = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   
   const [formData, setFormData] = useState({
     name: '',
@@ -102,6 +105,24 @@ const Users = () => {
     }
   };
 
+  // Filter users based on search term
+  const filteredUsers = users.filter(user =>
+    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.role.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredUsers.length / pageSize);
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const paginatedUsers = filteredUsers.slice(startIndex, endIndex);
+
+  // Reset to first page when search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
   if (loading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
@@ -158,8 +179,16 @@ const Users = () => {
         padding: '24px',
         marginBottom: '24px',
         display: 'flex',
-        justifyContent: 'flex-end'
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        gap: '16px'
       }}>
+        <Input
+          placeholder="Search by name, email, or role..."
+          value={searchTerm}
+          onInput={(e) => setSearchTerm(e.target.value)}
+          style={{ flex: 1, maxWidth: '400px' }}
+        />
         <Button
           design="Emphasized"
           onClick={handleOpenDialog}
@@ -188,7 +217,7 @@ const Users = () => {
               </tr>
             </thead>
             <tbody>
-              {users.map((user, index) => (
+              {paginatedUsers.map((user, index) => (
                 <tr key={user.id} style={{ borderBottom: index < users.length - 1 ? '1px solid #f0f0f0' : 'none' }}>
                   <td style={{ padding: '16px', color: '#1a1a1a', fontSize: '14px', fontWeight: '500' }}>{user.name}</td>
                   <td style={{ padding: '16px', color: '#666666', fontSize: '14px' }}>{user.email}</td>
@@ -229,6 +258,78 @@ const Users = () => {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination Controls */}
+        {filteredUsers.length > 0 && (
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginTop: '20px',
+            padding: '16px',
+            background: '#fafafa',
+            borderRadius: '6px'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <Label>Rows per page:</Label>
+              <Select
+                value={pageSize.toString()}
+                onChange={(e) => {
+                  setPageSize(parseInt(e.detail.selectedOption.value));
+                  setCurrentPage(1);
+                }}
+                style={{ width: '80px' }}
+              >
+                <Option value="5">5</Option>
+                <Option value="10">10</Option>
+                <Option value="20">20</Option>
+                <Option value="50">50</Option>
+                <Option value="100">100</Option>
+              </Select>
+              <Text style={{ color: '#666', fontSize: '14px', marginLeft: '16px' }}>
+                Showing {startIndex + 1}-{Math.min(endIndex, filteredUsers.length)} of {filteredUsers.length}
+              </Text>
+            </div>
+
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <Button
+                design="Transparent"
+                onClick={() => setCurrentPage(1)}
+                disabled={currentPage === 1}
+                style={{ minWidth: '40px' }}
+              >
+                ⟪
+              </Button>
+              <Button
+                design="Transparent"
+                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+                style={{ minWidth: '40px' }}
+              >
+                ‹
+              </Button>
+              <Text style={{ fontSize: '14px', fontWeight: '500', margin: '0 12px' }}>
+                Page {currentPage} of {totalPages}
+              </Text>
+              <Button
+                design="Transparent"
+                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                disabled={currentPage === totalPages}
+                style={{ minWidth: '40px' }}
+              >
+                ›
+              </Button>
+              <Button
+                design="Transparent"
+                onClick={() => setCurrentPage(totalPages)}
+                disabled={currentPage === totalPages}
+                style={{ minWidth: '40px' }}
+              >
+                ⟫
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Add User Dialog */}

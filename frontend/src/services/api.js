@@ -10,22 +10,53 @@ const api = axios.create({
   },
 });
 
-// Request interceptor to add auth token
+// Global loading state management
+let loadingCallbacks = { show: null, hide: null };
+
+export const setLoadingCallbacks = (show, hide) => {
+  loadingCallbacks.show = show;
+  loadingCallbacks.hide = hide;
+};
+
+// Request interceptor to add auth token and show loader
 api.interceptors.request.use(
   (config) => {
     const token = useAuthStore.getState().token;
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    
+    // Show loading
+    if (loadingCallbacks.show) {
+      loadingCallbacks.show();
+    }
+    
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => {
+    // Hide loading on error
+    if (loadingCallbacks.hide) {
+      loadingCallbacks.hide();
+    }
+    return Promise.reject(error);
+  }
 );
 
-// Response interceptor for error handling
+// Response interceptor for error handling and hide loader
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Hide loading on success
+    if (loadingCallbacks.hide) {
+      loadingCallbacks.hide();
+    }
+    return response;
+  },
   (error) => {
+    // Hide loading on error
+    if (loadingCallbacks.hide) {
+      loadingCallbacks.hide();
+    }
+    
     if (error.response?.status === 401) {
       useAuthStore.getState().logout();
       window.location.href = '/login';

@@ -193,7 +193,7 @@ const Products = () => {
         <Input
           placeholder="Search by name, barcode, or category..."
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onInput={(e) => setSearchTerm(e.target.value)}
           style={{ flex: 1, maxWidth: '400px' }}
         />
         <Button
