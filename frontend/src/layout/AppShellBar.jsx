@@ -1,6 +1,7 @@
 import { ShellBar, Avatar } from '@ui5/webcomponents-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
+import logo from '../assets/Feroze-1888.png';
 
 const AppShellBar = () => {
   const navigate = useNavigate();
@@ -31,13 +32,23 @@ const AppShellBar = () => {
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
         <div style={{
-          fontSize: '18px',
-          fontWeight: '700',
-          color: '#2563eb',
           cursor: 'pointer',
-          letterSpacing: '-0.5px'
+          display: 'flex',
+          alignItems: 'center',
+          height: '48px'
         }} onClick={handleLogoClick}>
-          Feroze 1888 Mills - POS
+          <img 
+            src={logo} 
+            alt="Feroze 1888 Mills" 
+            style={{
+              height: '48px',
+              width: 'auto',
+              objectFit: 'contain',
+              transition: 'transform 0.2s ease'
+            }}
+            onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+            onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+          />
         </div>
         <div style={{
           fontSize: '12px',

@@ -3,6 +3,8 @@
  * Generates a thermal-style receipt PDF (80mm width)
  */
 
+import logoImage from '../assets/Feroze-1888.png';
+
 export const generateThermalReceipt = (saleData) => {
   // Thermal receipt width: 80mm = ~302px at 96 DPI
   const receiptWidth = 80; // mm
@@ -50,6 +52,17 @@ export const generateThermalReceipt = (saleData) => {
           margin-bottom: 10px;
           border-bottom: 2px dashed #000;
           padding-bottom: 10px;
+        }
+        
+        .logo-container {
+          margin-bottom: 10px;
+        }
+        
+        .logo {
+          max-width: 120px;
+          height: auto;
+          margin: 0 auto;
+          display: block;
         }
         
         .store-name {
@@ -154,9 +167,12 @@ export const generateThermalReceipt = (saleData) => {
     <body onload="window.print(); window.onafterprint = function(){ window.close(); }">
       <div class="receipt">
         <div class="header">
-          <div class="store-name">POS SYSTEM</div>
+          <div class="logo-container">
+            <img src="${logoImage}" alt="Feroze 1888 Mills" class="logo" />
+          </div>
+          <div class="store-name">Feroze 1888 Mills</div>
           <div class="store-info">
-            Your Store Address<br>
+            Point of Sale System<br>
             Phone: +92 XXX XXXXXXX<br>
             NTN: XXXXXXXXX
           </div>
@@ -237,7 +253,8 @@ export const generateThermalReceipt = (saleData) => {
         <div class="footer">
           <div class="thank-you">THANK YOU!</div>
           <div>Visit Again</div>
-          <div style="margin-top: 5px;">Powered by POS System</div>
+          <div style="margin-top: 8px; font-weight: bold;">Feroze 1888 Mills</div>
+          <div style="margin-top: 5px;">Powered by Feroze 1888 Mills</div>
         </div>
       </div>
     </body>

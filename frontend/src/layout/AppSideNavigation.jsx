@@ -1,5 +1,6 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
+import logo from '../assets/Feroze-1888.png';
 import './AppSideNavigation.css';
 
 const AppSideNavigation = () => {
@@ -24,6 +25,11 @@ const AppSideNavigation = () => {
 
   return (
     <div className="sidebar">
+      {/* Logo Section */}
+      {/* <div className="sidebar-logo" onClick={() => navigate('/dashboard')}>
+        <img src={logo} alt="Feroze 1888 Mills" className="logo-image" />
+      </div> */}
+      
       <div className="sidebar-menu">
         {menuItems.map((item) => {
           // Skip admin-only items for non-admin users
