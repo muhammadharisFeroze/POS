@@ -31,13 +31,13 @@ const AppShellBar = () => {
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
         <div style={{
-          fontSize: '20px',
+          fontSize: '18px',
           fontWeight: '700',
           color: '#2563eb',
           cursor: 'pointer',
           letterSpacing: '-0.5px'
         }} onClick={handleLogoClick}>
-          POS System
+          Feroze 1888 Mills - POS
         </div>
         <div style={{
           fontSize: '12px',

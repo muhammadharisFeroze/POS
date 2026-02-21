@@ -1,13 +1,190 @@
+/* Reset and Base Styles */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+/* Professional Typography System */
 body {
   margin: 0;
-  font-family: '72', 'Arial', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #f5f6f7;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #1f2937;
+  background-color: #fafafa;
+}
+
+code {
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 13px;
+}
+
+/* Typography Scale - Professional & Clean */
+h1 {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.5px;
+  color: #111827;
+}
+
+h2 {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.3px;
+  color: #111827;
+}
+
+h3 {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: -0.2px;
+  color: #1f2937;
+}
+
+h4 {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: #1f2937;
+}
+
+h5 {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: #374151;
+}
+
+h6 {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #6b7280;
+}
+
+p {
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0;
+  color: #374151;
+}
+
+small {
+  font-size: 12px;
+  line-height: 1.5;
+  color: #6b7280;
+}
+
+/* Button Styles */
+button {
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: -0.05px;
+  font-family: inherit;
+}
+
+/* Form Elements */
+input, 
+textarea, 
+select {
+  font-size: 13px;
+  line-height: 1.5;
+  font-family: inherit;
+}
+
+label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+}
+
+/* Table Styles */
+table {
+  font-size: 13px;
+}
+
+thead {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #6b7280;
+}
+
+tbody {
+  font-size: 13px;
+  color: #1f2937;
+}
+
+/* Link Styles */
+a {
+  font-size: 14px;
+  text-decoration: none;
+  color: #2563eb;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: #1d4ed8;
+}
+
+/* Utility Text Classes */
+.text-xs {
+  font-size: 11px;
+}
+
+.text-sm {
+  font-size: 12px;
+}
+
+.text-base {
+  font-size: 14px;
+}
+
+.text-lg {
+  font-size: 16px;
+}
+
+.text-xl {
+  font-size: 18px;
+}
+
+.text-2xl {
+  font-size: 20px;
+}
+
+/* UI5 Component Overrides for Consistent Typography */
+[ui5-button] {
+  font-size: 13px !important;
+}
+
+[ui5-input] {
+  font-size: 13px !important;
+}
+
+[ui5-title] {
+  letter-spacing: -0.3px !important;
+}
+
+[ui5-text] {
+  font-size: 13px !important;
+}
+
+[ui5-label] {
+  font-size: 13px !important;
+}
+
+/* Remove default margins from UI5 components */
+[ui5-title],
+[ui5-text],
+[ui5-label] {
+  margin: 0 !important;
 }

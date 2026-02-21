@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
 
+// Database configuration
 const pool = require('./config/database');
 const { createTables } = require('./models/schema');
 
