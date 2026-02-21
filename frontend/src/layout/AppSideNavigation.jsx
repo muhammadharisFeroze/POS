@@ -1,81 +1,48 @@
-import { SideNavigation, SideNavigationItem } from '@ui5/webcomponents-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
-import '@ui5/webcomponents-icons/dist/home.js';
-import '@ui5/webcomponents-icons/dist/product.js';
-import '@ui5/webcomponents-icons/dist/cart.js';
-import '@ui5/webcomponents-icons/dist/receipt.js';
-import '@ui5/webcomponents-icons/dist/bar-chart.js';
-import '@ui5/webcomponents-icons/dist/group.js';
+import './AppSideNavigation.css';
 
 const AppSideNavigation = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuthStore();
 
-  const handleItemClick = (e) => {
-    const path = e.detail.item.dataset.path;
-    if (path) {
-      navigate(path);
-    }
+  const menuItems = [
+    { id: 'dashboard', label: 'Dashboard', icon: '📊', path: '/dashboard' },
+    { id: 'pos', label: 'POS', icon: '🛒', path: '/pos' },
+    { id: 'products', label: 'Products', icon: '📦', path: '/products', adminOnly: true },
+    { id: 'sales', label: 'Sales', icon: '💰', path: '/sales' },
+    { id: 'reports', label: 'Reports', icon: '📈', path: '/reports' },
+    { id: 'users', label: 'Users', icon: '👥', path: '/users', adminOnly: true },
+  ];
+
+  const handleNavigation = (path) => {
+    navigate(path);
   };
 
   return (
-    <SideNavigation
-      onSelectionChange={handleItemClick}
-      style={{
-        height: 'calc(100vh - 64px)',
-        width: '240px',
-        borderRight: '1px solid #e0e0e0',
-        background: '#ffffff',
-      }}
-    >
-      <SideNavigationItem
-        text="Dashboard"
-        icon="home"
-        data-path="/dashboard"
-        selected={location.pathname === '/dashboard'}
-      />
-      
-      <SideNavigationItem
-        text="POS"
-        icon="cart"
-        data-path="/pos"
-        selected={location.pathname === '/pos'}
-      />
-      
-      {user?.role === 'admin' && (
-        <SideNavigationItem
-          text="Products"
-          icon="product"
-          data-path="/products"
-          selected={location.pathname === '/products'}
-        />
-      )}
-      
-      <SideNavigationItem
-        text="Sales"
-        icon="receipt"
-        data-path="/sales"
-        selected={location.pathname === '/sales'}
-      />
-      
-      <SideNavigationItem
-        text="Reports"
-        icon="bar-chart"
-        data-path="/reports"
-        selected={location.pathname === '/reports'}
-      />
-      
-      {user?.role === 'admin' && (
-        <SideNavigationItem
-          text="Users"
-          icon="group"
-          data-path="/users"
-          selected={location.pathname === '/users'}
-        />
-      )}
-    </SideNavigation>
+    <div className="sidebar">
+      <div className="sidebar-menu">
+        {menuItems.map((item) => {
+          // Skip admin-only items for non-admin users
+          if (item.adminOnly && user?.role !== 'admin') {
+            return null;
+          }
+
+          const isActive = location.pathname === item.path;
+          return (
+            <div
+              key={item.id}
+              className={`menu-item ${isActive ? 'active' : ''}`}
+              onClick={() => handleNavigation(item.path)}
+            >
+              <span className="menu-icon">{item.icon}</span>
+              <span className="menu-label">{item.label}</span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
   );
 };
 
