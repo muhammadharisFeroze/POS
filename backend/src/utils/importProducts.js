@@ -44,6 +44,7 @@ async function importProductsFromExcel(filePath) {
         const name = row['Product Name'] || row['Name'] || row['PRODUCT NAME'] || row['name'];
         const barcode = row['SKU'] || row['Code'] || row['Barcode'] || row['SKU Code'] || `SKU-${i + 1}`;
         const category = row['Category'] || row['CATEGORY'] || 'General';
+        const unit = row['Unit'] || row['UNIT'] || 'PCS';
         const price = parseFloat(row['Price'] || row['PRICE'] || row['Rate'] || 0);
         const stock_qty = parseInt(row['Stock'] || row['Quantity'] || row['QTY'] || 0);
         const tax_percent = parseFloat(row['Tax'] || row['TAX'] || 0);
@@ -56,12 +57,12 @@ async function importProductsFromExcel(filePath) {
         
         // Insert into database
         const result = await pool.query(
-          `INSERT INTO products (name, barcode, category, price, tax_percent, stock_qty, status) 
-           VALUES ($1, $2, $3, $4, $5, $6, $7) 
+          `INSERT INTO products (name, barcode, category, price, tax_percent, stock_qty, status,unit) 
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
            ON CONFLICT (barcode) DO UPDATE 
-           SET name = $1, category = $3, price = $4, tax_percent = $5, stock_qty = $6
+           SET name = $1, category = $3, price = $4, tax_percent = $5, stock_qty = $6, unit = $7
            RETURNING id`,
-          [name, barcode, category, price, tax_percent, stock_qty, 'active']
+          [name, barcode, category, price, tax_percent, stock_qty, 'active', unit]
         );
         
         successCount++;

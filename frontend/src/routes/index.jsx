@@ -4,6 +4,7 @@ import MainLayout from '../layout/MainLayout';
 import Login from '../pages/Login';
 import Dashboard from '../pages/Dashboard';
 import Products from '../pages/Products';
+import ImportProducts from '../pages/ImportProducts';
 import POS from '../pages/POS';
 import Sales from '../pages/Sales';
 import Reports from '../pages/Reports';
@@ -39,6 +40,7 @@ const AppRoutes = () => {
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="pos" element={<POS />} />
           <Route path="products" element={<Products />} />
+          <Route path="importproducts" element={<ImportProducts />} />
           <Route path="sales" element={<Sales />} />
           <Route path="reports" element={<Reports />} />
           <Route path="users" element={<Users />} />

@@ -4,8 +4,7 @@ class SalesService {
   // Get all sales with filters
   static async getAllSales(filters = {}) {
     try {
-      const { startDate, endDate, customerName, paymentMethod, page = 1, limit = 10 } = filters;
-      const offset = (page - 1) * limit;
+      const { startDate, endDate, customerName, paymentMethod } = filters;
 
       let query = `
         SELECT s.*, u.name as cashier_name
@@ -35,50 +34,13 @@ class SalesService {
         query += ` AND s.payment_method = $${params.length}`;
       }
 
-      query += ` ORDER BY s.datetime DESC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
-      params.push(limit, offset);
+      query += ` ORDER BY s.datetime DESC`;
 
       const result = await pool.query(query, params);
 
-      // Get total count
-      let countQuery = `
-        SELECT COUNT(*) 
-        FROM sales s
-        WHERE 1=1
-      `;
-      const countParams = [];
-
-      if (startDate) {
-        countParams.push(startDate);
-        countQuery += ` AND s.datetime >= $${countParams.length}::date`;
-      }
-
-      if (endDate) {
-        countParams.push(endDate);
-        countQuery += ` AND s.datetime <= $${countParams.length}::date + interval '1 day'`;
-      }
-
-      if (customerName) {
-        countParams.push(`%${customerName}%`);
-        countQuery += ` AND s.customer_name ILIKE $${countParams.length}`;
-      }
-
-      if (paymentMethod) {
-        countParams.push(paymentMethod);
-        countQuery += ` AND s.payment_method = $${countParams.length}`;
-      }
-
-      const countResult = await pool.query(countQuery, countParams);
-      const total = parseInt(countResult.rows[0].count);
-
       return {
         sales: result.rows,
-        pagination: {
-          page: parseInt(page),
-          limit: parseInt(limit),
-          total,
-          pages: Math.ceil(total / limit)
-        }
+        total: result.rows.length
       };
     } catch (error) {
       throw new Error('Failed to fetch sales');
@@ -127,7 +89,7 @@ class SalesService {
     try {
       await client.query('BEGIN');
 
-      const { customer_name, items, payment_method } = saleData;
+      const { customer_name, items, payment_method, cnic, transaction_id } = saleData;
 
       // Calculate totals
       let subtotal = 0;
@@ -176,9 +138,9 @@ class SalesService {
 
       // Create sale record
       const saleResult = await client.query(
-        `INSERT INTO sales (invoice_no, customer_name, subtotal, discount, tax, total, payment_method, user_id)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
-        [invoiceNumber, customer_name || 'Walk-in Customer', subtotal, totalDiscount, totalTax, total, payment_method, userId]
+        `INSERT INTO sales (invoice_no, customer_name, cnic, transaction_id, subtotal, discount, tax, total, payment_method, user_id)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`,
+        [invoiceNumber, customer_name || 'Walk-in Customer', cnic, transaction_id, subtotal, totalDiscount, totalTax, total, payment_method, userId]
       );
 
       const sale = saleResult.rows[0];
@@ -317,6 +279,31 @@ class SalesService {
       return result.rows;
     } catch (error) {
       throw new Error('Failed to fetch tax report');
+    }
+  }
+
+  // Get user-wise sales report
+  static async getUserWiseReport(startDate, endDate) {
+    try {
+      const result = await pool.query(
+        `SELECT 
+           u.name as user_name,
+           u.role,
+           COUNT(s.id) as transaction_count,
+           SUM(CASE WHEN s.payment_method = 'cash' THEN s.total ELSE 0 END) as cash_sales,
+           SUM(CASE WHEN s.payment_method = 'card' THEN s.total ELSE 0 END) as card_sales,
+           SUM(s.total) as total_sales
+         FROM users u
+         LEFT JOIN sales s ON u.id = s.user_id 
+           AND s.datetime::date BETWEEN $1 AND $2
+         GROUP BY u.id, u.name, u.role
+         ORDER BY total_sales DESC`,
+        [startDate, endDate]
+      );
+
+      return result.rows;
+    } catch (error) {
+      throw new Error('Failed to fetch user-wise report');
     }
   }
 }

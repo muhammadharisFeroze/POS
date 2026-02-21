@@ -58,6 +58,7 @@ export const salesAPI = {
   getDashboard: () => api.get('/sales/dashboard'),
   getDailyReport: (params) => api.get('/sales/reports/daily', { params }),
   getProductWiseReport: (params) => api.get('/sales/reports/product-wise', { params }),
+  getUserWiseReport: (params) => api.get('/sales/reports/user-wise', { params }),
   getTaxReport: (params) => api.get('/sales/reports/tax', { params }),
 };
 

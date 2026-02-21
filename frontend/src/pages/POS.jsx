@@ -18,6 +18,8 @@ const POS = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [customerName, setCustomerName] = useState('Walk-in Customer');
   const [paymentMethod, setPaymentMethod] = useState('cash');
+  const [cnic, setCnic] = useState('');
+  const [transactionId, setTransactionId] = useState('');
   const [products, setProducts] = useState([]);
   const [activeDiscounts, setActiveDiscounts] = useState({});
   const [message, setMessage] = useState({ type: '', text: '' });
@@ -88,12 +90,20 @@ const POS = () => {
       return;
     }
     
+    // Validate Transaction ID for Card payment
+    if (paymentMethod === 'card' && !transactionId.trim()) {
+      setMessage({ type: 'error', text: 'Transaction ID is required for card payments!' });
+      return;
+    }
+    
     setLoading(true);
     try {
       // Prepare sale data
       const saleData = {
         customer_name: customerName,
         payment_method: paymentMethod,
+        cnic: cnic.trim() || null,
+        transaction_id: paymentMethod === 'card' ? transactionId.trim() : null,
         items: cart.map(item => ({
           product_id: item.id,
           quantity: item.quantity,
@@ -116,6 +126,8 @@ const POS = () => {
         
         clearCart();
         setCustomerName('Walk-in Customer');
+        setCnic('');
+        setTransactionId('');
         setTimeout(() => setMessage({ type: '', text: '' }), 5000);
       }
     } catch (error) {
@@ -167,7 +179,7 @@ const POS = () => {
                     <div style={{
                       position: 'absolute',
                       top: '8px',
-                      right: '8px',
+                      left: '8px',
                       background: '#dc2626',
                       color: 'white',
                       padding: '4px 8px',
@@ -344,6 +356,36 @@ const POS = () => {
                     />
                   </div>
 
+                  <div className="input-group">
+                    <Label style={{ fontSize: '13px', fontWeight: '600', color: '#666' }}>CNIC (Optional)</Label>
+                    <Input
+                      value={cnic}
+                      onChange={(e) => {
+                        let value = e.target.value;
+                        
+                        // Remove all non-digit characters
+                        const digits = value.replace(/\D/g, '');
+                        
+                        // Apply CNIC format: 00000-0000000-0
+                        if (digits.length <= 13) {
+                          let formatted = digits;
+                          
+                          if (digits.length > 5) {
+                            formatted = digits.slice(0, 5) + '-' + digits.slice(5);
+                          }
+                          if (digits.length > 12) {
+                            formatted = digits.slice(0, 5) + '-' + digits.slice(5, 12) + '-' + digits.slice(12);
+                          }
+                          
+                          setCnic(formatted);
+                        }
+                      }}
+                      placeholder="00000-0000000-0"
+                      style={{ width: '100%' }}
+                      maxLength={15}
+                    />
+                  </div>
+
                   <div className="payment-methods">
                     <button
                       className={`payment-btn ${paymentMethod === 'cash' ? 'active' : ''}`}
@@ -360,6 +402,21 @@ const POS = () => {
                       <span>Card</span>
                     </button>
                   </div>
+
+                  {paymentMethod === 'card' && (
+                    <div className="input-group">
+                      <Label style={{ fontSize: '13px', fontWeight: '600', color: '#666' }}>
+                        Transaction ID <span style={{ color: '#dc2626' }}>*</span>
+                      </Label>
+                      <Input
+                        value={transactionId}
+                        onChange={(e) => setTransactionId(e.target.value)}
+                        placeholder="Enter transaction ID"
+                        style={{ width: '100%' }}
+                        required
+                      />
+                    </div>
+                  )}
 
                   <Button
                     design="Emphasized"

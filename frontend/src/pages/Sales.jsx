@@ -3,6 +3,10 @@ import {
   Title,
   Button,
   Text,
+  Input,
+  Label,
+  Select,
+  Option,
   BusyIndicator,
   Dialog,
 } from '@ui5/webcomponents-react';
@@ -15,6 +19,9 @@ const Sales = () => {
   const [loading, setLoading] = useState(true);
   const [selectedSale, setSelectedSale] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   useEffect(() => {
     fetchSales();
@@ -59,6 +66,25 @@ const Sales = () => {
     }
   };
 
+  // Filter sales based on search term
+  const filteredSales = sales.filter(sale =>
+    sale.invoice_no.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    sale.customer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (sale.cnic && sale.cnic.includes(searchTerm)) ||
+    (sale.transaction_id && sale.transaction_id.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredSales.length / pageSize);
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const paginatedSales = filteredSales.slice(startIndex, endIndex);
+
+  // Reset to first page when search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
   if (loading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
@@ -76,6 +102,22 @@ const Sales = () => {
         <Text style={{ color: '#666666', fontSize: '14px' }}>View all completed transactions</Text>
       </div>
 
+      {/* Search Bar */}
+      <div style={{
+        background: '#ffffff',
+        border: '1px solid #e0e0e0',
+        borderRadius: '8px',
+        padding: '24px',
+        marginBottom: '24px'
+      }}>
+        <Input
+          placeholder="Search by invoice number, customer name, CNIC, or transaction ID..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{ width: '100%', maxWidth: '500px' }}
+        />
+      </div>
+
       <div style={{
         background: '#ffffff',
         border: '1px solid #e0e0e0',
@@ -90,13 +132,15 @@ const Sales = () => {
                 <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Invoice No</th>
                 <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Date & Time</th>
                 <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Customer</th>
+                <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>CNIC</th>
                 <th style={{ padding: '16px', textAlign: 'right', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total</th>
                 <th style={{ padding: '16px', textAlign: 'center', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Payment</th>
+                <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Transaction ID</th>
                 <th style={{ padding: '16px', textAlign: 'center', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Action</th>
               </tr>
             </thead>
             <tbody>
-              {sales.map((sale, index) => (
+              {paginatedSales.map((sale, index) => (
                 <tr key={sale.id} style={{ borderBottom: index < sales.length - 1 ? '1px solid #f0f0f0' : 'none' }}>
                   <td style={{ padding: '16px', color: '#2563eb', fontSize: '14px', fontWeight: '600', fontFamily: 'monospace' }}>{sale.invoice_no}</td>
                   <td style={{ padding: '16px', color: '#666666', fontSize: '14px' }}>
@@ -109,6 +153,9 @@ const Sales = () => {
                     })}
                   </td>
                   <td style={{ padding: '16px', color: '#1a1a1a', fontSize: '14px', fontWeight: '500' }}>{sale.customer_name}</td>
+                  <td style={{ padding: '16px', color: '#666666', fontSize: '13px', fontFamily: 'monospace' }}>
+                    {sale.cnic || '-'}
+                  </td>
                   <td style={{ padding: '16px', color: '#1a1a1a', fontSize: '14px', fontWeight: '700', textAlign: 'right' }}>Rs. {parseFloat(sale.total || 0).toFixed(2)}</td>
                   <td style={{ padding: '16px', textAlign: 'center' }}>
                     <span style={{
@@ -122,6 +169,9 @@ const Sales = () => {
                     }}>
                       {sale.payment_method}
                     </span>
+                  </td>
+                  <td style={{ padding: '16px', color: '#666666', fontSize: '13px', fontFamily: 'monospace' }}>
+                    {sale.transaction_id || '-'}
                   </td>
                   <td style={{ padding: '16px', textAlign: 'center' }}>
                     <button
@@ -145,6 +195,83 @@ const Sales = () => {
             </tbody>
           </table>
         </div>
+
+        {filteredSales.length === 0 && (
+          <div style={{ textAlign: 'center', padding: '40px', color: '#666666' }}>
+            No sales found
+          </div>
+        )}
+
+        {/* Pagination Controls */}
+        {filteredSales.length > 0 && (
+          <div style={{ 
+            marginTop: '24px', 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center',
+            paddingTop: '24px',
+            borderTop: '1px solid #e0e0e0'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <Text style={{ fontSize: '14px', color: '#666' }}>Rows per page:</Text>
+              <Select
+                value={pageSize.toString()}
+                onChange={(e) => {
+                  setPageSize(parseInt(e.detail.selectedOption.value));
+                  setCurrentPage(1);
+                }}
+                style={{ width: '80px' }}
+              >
+                <Option value="5">5</Option>
+                <Option value="10">10</Option>
+                <Option value="20">20</Option>
+                <Option value="50">50</Option>
+                <Option value="100">100</Option>
+              </Select>
+              <Text style={{ fontSize: '14px', color: '#666' }}>
+                Showing {startIndex + 1}-{Math.min(endIndex, filteredSales.length)} of {filteredSales.length}
+              </Text>
+            </div>
+            
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <Button
+                onClick={() => setCurrentPage(1)}
+                disabled={currentPage === 1}
+                design="Transparent"
+                style={{ minWidth: '40px' }}
+              >
+                ⟪
+              </Button>
+              <Button
+                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+                design="Transparent"
+                style={{ minWidth: '40px' }}
+              >
+                ‹
+              </Button>
+              <Text style={{ fontSize: '14px', fontWeight: '600', color: '#1a1a1a', padding: '0 16px' }}>
+                Page {currentPage} of {totalPages}
+              </Text>
+              <Button
+                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                disabled={currentPage === totalPages}
+                design="Transparent"
+                style={{ minWidth: '40px' }}
+              >
+                ›
+              </Button>
+              <Button
+                onClick={() => setCurrentPage(totalPages)}
+                disabled={currentPage === totalPages}
+                design="Transparent"
+                style={{ minWidth: '40px' }}
+              >
+                ⟫
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Invoice Dialog */}
@@ -180,12 +307,20 @@ const Sales = () => {
                   </Text>
                 </div>
                 <div>
+                  <Text style={{ fontSize: '12px', color: '#666666', display: 'block' }}>CNIC:</Text>
+                  <Text style={{ fontWeight: '600', fontFamily: 'monospace' }}>{selectedSale.cnic || 'N/A'}</Text>
+                </div>
+                <div>
                   <Text style={{ fontSize: '12px', color: '#666666', display: 'block' }}>Cashier:</Text>
                   <Text style={{ fontWeight: '600' }}>{selectedSale.cashier_name}</Text>
                 </div>
                 <div>
                   <Text style={{ fontSize: '12px', color: '#666666', display: 'block' }}>Payment:</Text>
                   <Text style={{ fontWeight: '600', textTransform: 'capitalize' }}>{selectedSale.payment_method}</Text>
+                </div>
+                <div>
+                  <Text style={{ fontSize: '12px', color: '#666666', display: 'block' }}>Transaction ID:</Text>
+                  <Text style={{ fontWeight: '600', fontFamily: 'monospace' }}>{selectedSale.transaction_id || 'N/A'}</Text>
                 </div>
               </div>
             </div>

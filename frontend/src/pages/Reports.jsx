@@ -27,20 +27,25 @@ const Reports = () => {
 
   const fetchReport = async () => {
     if (!startDate || !endDate) return;
-    
+
     setLoading(true);
     try {
       let response;
       const params = { start_date: startDate, end_date: endDate };
-      
+
       if (reportType === 'daily') {
         response = await salesAPI.getDailyReport(params);
-      } else if (reportType === 'product') {
-        response = await salesAPI.getProductWiseReport(params);
-      } else if (reportType === 'tax') {
-        response = await salesAPI.getTaxReport(params);
       }
-      
+      else if (reportType === 'product') {
+        response = await salesAPI.getProductWiseReport(params);
+      }
+      // else if (reportType === 'tax') {
+      //   response = await salesAPI.getTaxReport(params);
+      // }
+      else if (reportType === 'userwise') {
+        response = await salesAPI.getUserWiseReport(params);
+      }
+
       if (response.data.success) {
         setReportData(response.data.data);
       }
@@ -190,6 +195,69 @@ const Reports = () => {
     </div>
   );
 
+  const renderUserWiseReport = () => (
+    <div style={{ overflowX: 'auto' }}>
+      <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 0 }}>
+        <thead>
+          <tr style={{ borderBottom: '2px solid #e0e0e0' }}>
+            <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>User Name</th>
+            <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Role</th>
+            <th style={{ padding: '16px', textAlign: 'center', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Transactions</th>
+            <th style={{ padding: '16px', textAlign: 'right', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Cash Sales</th>
+            <th style={{ padding: '16px', textAlign: 'right', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Card Sales</th>
+            <th style={{ padding: '16px', textAlign: 'right', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Sales</th>
+          </tr>
+        </thead>
+        <tbody>
+          {reportData.map((row, index) => (
+            <tr key={index} style={{ borderBottom: index < reportData.length - 1 ? '1px solid #f0f0f0' : 'none' }}>
+              <td style={{ padding: '16px', color: '#1a1a1a', fontSize: '14px', fontWeight: '500' }}>{row.user_name}</td>
+              <td style={{ padding: '16px', color: '#666666', fontSize: '13px' }}>
+                <span style={{
+                  padding: '4px 8px',
+                  borderRadius: '4px',
+                  background: row.role === 'admin' ? '#eff6ff' : '#fef3c7',
+                  color: row.role === 'admin' ? '#2563eb' : '#d97706',
+                  fontSize: '11px',
+                  fontWeight: '600',
+                  textTransform: 'uppercase'
+                }}>
+                  {row.role}
+                </span>
+              </td>
+              <td style={{ padding: '16px', color: '#2563eb', fontSize: '14px', fontWeight: '700', textAlign: 'center' }}>{row.transaction_count}</td>
+              <td style={{ padding: '16px', color: '#16a34a', fontSize: '14px', fontWeight: '600', textAlign: 'right' }}>Rs. {parseFloat(row.cash_sales || 0).toFixed(2)}</td>
+              <td style={{ padding: '16px', color: '#7c3aed', fontSize: '14px', fontWeight: '600', textAlign: 'right' }}>Rs. {parseFloat(row.card_sales || 0).toFixed(2)}</td>
+              <td style={{ padding: '16px', color: '#1a1a1a', fontSize: '14px', fontWeight: '700', textAlign: 'right' }}>Rs. {parseFloat(row.total_sales).toFixed(2)}</td>
+            </tr>
+          ))}
+          {reportData.length > 0 && (
+            <tr style={{ borderTop: '2px solid #e0e0e0', background: '#fafafa' }}>
+              <td colSpan="2" style={{ padding: '16px', fontWeight: '700' }}>TOTAL</td>
+              <td style={{ padding: '16px', textAlign: 'center', fontWeight: '700', color: '#2563eb' }}>
+                {reportData.reduce((sum, row) => sum + parseInt(row.transaction_count || 0), 0)}
+              </td>
+              <td style={{ padding: '16px', textAlign: 'right', fontWeight: '700', color: '#16a34a' }}>
+                Rs. {reportData.reduce((sum, row) => sum + parseFloat(row.cash_sales || 0), 0).toFixed(2)}
+              </td>
+              <td style={{ padding: '16px', textAlign: 'right', fontWeight: '700', color: '#7c3aed' }}>
+                Rs. {reportData.reduce((sum, row) => sum + parseFloat(row.card_sales || 0), 0).toFixed(2)}
+              </td>
+              <td style={{ padding: '16px', textAlign: 'right', fontWeight: '700', fontSize: '16px', color: '#2563eb' }}>
+                Rs. {reportData.reduce((sum, row) => sum + parseFloat(row.total_sales || 0), 0).toFixed(2)}
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+      {reportData.length === 0 && (
+        <div style={{ textAlign: 'center', padding: '40px', color: '#666666' }}>
+          No data available for the selected period
+        </div>
+      )}
+    </div>
+  );
+
   return (
     <div className="reports-page">
       <div style={{ marginBottom: '32px' }}>
@@ -217,6 +285,7 @@ const Reports = () => {
             >
               <Option value="daily">Daily Sales Report</Option>
               <Option value="product">Product-wise Sales</Option>
+              <Option value="userwise">User-wise Transactions</Option>
               <Option value="tax">Tax Report</Option>
             </Select>
           </div>
@@ -255,12 +324,22 @@ const Reports = () => {
         <Title level="H4" style={{ fontSize: '18px', fontWeight: '600', marginBottom: '24px' }}>
           {reportType === 'daily' && 'Daily Sales Report'}
           {reportType === 'product' && 'Product-wise Sales Report'}
+          {reportType === 'userwise' && 'User-wise Transaction Report'}
           {reportType === 'tax' && 'Tax Report'}
         </Title>
 
-        {reportType === 'daily' && renderDailySalesReport()}
-        {reportType === 'product' && renderProductWiseReport()}
-        {reportType === 'tax' && renderTaxReport()}
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '40px' }}>
+            <BusyIndicator active />
+          </div>
+        ) : (
+          <>
+            {reportType === 'daily' && renderDailySalesReport()}
+            {reportType === 'product' && renderProductWiseReport()}
+            {reportType === 'userwise' && renderUserWiseReport()}
+            {reportType === 'tax' && renderTaxReport()}
+          </>
+        )}
       </div>
     </div>
   );

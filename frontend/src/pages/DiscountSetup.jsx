@@ -27,6 +27,7 @@ const DiscountSetup = () => {
 
     const [formData, setFormData] = useState({
         product_id: '',
+        applyToAll: false,
         discount_percent: '',
         valid_from: '',
         valid_till: '',
@@ -66,6 +67,7 @@ const DiscountSetup = () => {
             setCurrentDiscount(discount);
             setFormData({
                 product_id: discount.product_id.toString(),
+                applyToAll: false,
                 discount_percent: discount.discount_percent.toString(),
                 valid_from: discount.valid_from,
                 valid_till: discount.valid_till,
@@ -76,6 +78,7 @@ const DiscountSetup = () => {
             setCurrentDiscount(null);
             setFormData({
                 product_id: '',
+                applyToAll: false,
                 discount_percent: '',
                 valid_from: '',
                 valid_till: '',
@@ -89,6 +92,7 @@ const DiscountSetup = () => {
         setDialogOpen(false);
         setFormData({
             product_id: '',
+            applyToAll: false,
             discount_percent: '',
             valid_from: '',
             valid_till: '',
@@ -98,22 +102,55 @@ const DiscountSetup = () => {
 
     const handleSubmit = async () => {
         try {
-            const discountData = {
-                ...formData,
-                product_id: parseInt(formData.product_id),
-                discount_percent: parseFloat(formData.discount_percent)
-            };
-
-            if (editMode) {
-                await discountAPI.update(currentDiscount.id, discountData);
-                setMessage({ type: 'success', text: 'Discount updated successfully!' });
+            if (formData.applyToAll) {
+                // Apply discount to all products
+                setMessage({ type: 'info', text: 'Creating discounts for all products...' });
+                
+                let successCount = 0;
+                let errorCount = 0;
+                
+                for (const product of products) {
+                    try {
+                        const discountData = {
+                            product_id: product.id,
+                            discount_percent: parseFloat(formData.discount_percent),
+                            valid_from: formData.valid_from,
+                            valid_till: formData.valid_till,
+                            active: formData.active
+                        };
+                        
+                        await discountAPI.create(discountData);
+                        successCount++;
+                    } catch (error) {
+                        console.error(`Failed to create discount for ${product.name}:`, error);
+                        errorCount++;
+                    }
+                }
+                
+                setMessage({ 
+                    type: 'success', 
+                    text: `Discount applied to ${successCount} products! ${errorCount > 0 ? `(${errorCount} failed)` : ''}` 
+                });
             } else {
-                await discountAPI.create(discountData);
-                setMessage({ type: 'success', text: 'Discount created successfully!' });
+                // Apply discount to single product
+                const discountData = {
+                    ...formData,
+                    product_id: parseInt(formData.product_id),
+                    discount_percent: parseFloat(formData.discount_percent)
+                };
+
+                if (editMode) {
+                    await discountAPI.update(currentDiscount.id, discountData);
+                    setMessage({ type: 'success', text: 'Discount updated successfully!' });
+                } else {
+                    await discountAPI.create(discountData);
+                    setMessage({ type: 'success', text: 'Discount created successfully!' });
+                }
             }
+            
             handleCloseDialog();
             fetchData();
-            setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+            setTimeout(() => setMessage({ type: '', text: '' }), 5000);
         } catch (error) {
             console.error('Save discount error:', error);
             setMessage({ type: 'error', text: error.response?.data?.message || 'Failed to save discount' });
@@ -284,20 +321,48 @@ const DiscountSetup = () => {
             >
                 <div style={{ padding: '20px' }}>
                     <div style={{ marginBottom: '20px' }}>
-                        <Label required showColon>Product</Label>
-                        <Select
-                            value={formData.product_id}
-                            onChange={(e) => setFormData({ ...formData, product_id: e.detail.selectedOption.value })}
-                            style={{ width: '100%', marginTop: '8px' }}
-                        >
-                            <Option value="">Select Product</Option>
-                            {products.map(product => (
-                                <Option key={product.id} value={product.id.toString()}>
-                                    {product.name}
-                                </Option>
-                            ))}
-                        </Select>
+                        <CheckBox
+                            checked={formData.applyToAll}
+                            onChange={(e) => setFormData({ ...formData, applyToAll: e.target.checked, product_id: e.target.checked ? '' : formData.product_id })}
+                            text="Apply to All Products"
+                            disabled={editMode}
+                        />
+                        <Text style={{ fontSize: '12px', color: '#666666', display: 'block', marginTop: '8px' }}>
+                            {editMode ? 'Cannot apply to all products in edit mode' : 'Check this to apply discount to all products at once'}
+                        </Text>
                     </div>
+
+                    {!formData.applyToAll && (
+                        <div style={{ marginBottom: '20px' }}>
+                            <Label required showColon>Product</Label>
+                            <Select
+                                value={formData.product_id}
+                                onChange={(e) => setFormData({ ...formData, product_id: e.detail.selectedOption.value })}
+                                style={{ width: '100%', marginTop: '8px' }}
+                            >
+                                <Option value="">Select Product</Option>
+                                {products.map(product => (
+                                    <Option key={product.id} value={product.id.toString()}>
+                                        {product.name}
+                                    </Option>
+                                ))}
+                            </Select>
+                        </div>
+                    )}
+
+                    {formData.applyToAll && (
+                        <div style={{ 
+                            marginBottom: '20px', 
+                            padding: '12px', 
+                            background: '#eff6ff', 
+                            border: '1px solid #bfdbfe',
+                            borderRadius: '6px'
+                        }}>
+                            <Text style={{ fontSize: '13px', color: '#2563eb', fontWeight: '600' }}>
+                                ℹ️ This will create discount for all {products.length} products in the system
+                            </Text>
+                        </div>
+                    )}
 
                     <div style={{ marginBottom: '20px' }}>
                         <Label required showColon>Discount Percentage</Label>

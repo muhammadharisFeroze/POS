@@ -24,6 +24,7 @@ const createTables = async () => {
         price DECIMAL(10, 2) NOT NULL,
         tax_percent DECIMAL(5, 2) DEFAULT 0,
         stock_qty INTEGER DEFAULT 0,
+        unit VARCHAR(20) DEFAULT 'PCS',
         status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'inactive')),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
@@ -36,6 +37,8 @@ const createTables = async () => {
         invoice_no VARCHAR(50) UNIQUE NOT NULL,
         datetime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         customer_name VARCHAR(100) DEFAULT 'Walk-in Customer',
+        cnic VARCHAR(15),
+        transaction_id VARCHAR(100),
         subtotal DECIMAL(10, 2) NOT NULL,
         discount DECIMAL(10, 2) DEFAULT 0,
         tax DECIMAL(10, 2) DEFAULT 0,
