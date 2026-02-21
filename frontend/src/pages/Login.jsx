@@ -1,35 +1,22 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  Card,
-  Title,
-  Label,
-  Input,
-  Button,
-  MessageStrip,
-} from '@ui5/webcomponents-react';
+import { Button, Input } from '@ui5/webcomponents-react';
 import { useAuthStore } from '../store/authStore';
-import { authAPI } from '../services/api';
 import './Login.css';
 
 const Login = () => {
-  const navigate = useNavigate();
-  const setAuth = useAuthStore((state) => state.setAuth);
-  
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const { setAuth } = useAuthStore();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     setError('');
     setLoading(true);
-    
-    console.log('Login attempt:', email, password);
 
     try {
-      // Mock authentication for demo (remove when backend is ready)
       if (email === 'admin@pos.com' && password === 'admin123') {
         const mockUser = {
           id: 1,
@@ -38,79 +25,105 @@ const Login = () => {
           role: 'admin'
         };
         const mockToken = 'mock-jwt-token-' + Date.now();
-        
-        console.log('Login successful, setting auth...');
         setAuth(mockUser, mockToken);
-        console.log('Navigating to dashboard...');
         navigate('/dashboard');
       } else {
-        setError('Invalid credentials. Use: admin@pos.com / admin123');
+        setError('Invalid email or password');
       }
     } catch (err) {
-      console.error('Login error:', err);
-      setError(err.response?.data?.message || 'Login failed');
+      setError('Login failed. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleSubmit();
+    }
+  };
+
   return (
     <div className="login-container">
-      <Card className="login-card">
-        <div className="login-header">
-          <Title level="H2">POS System</Title>
-          <p style={{ color: '#6a6d70', marginTop: '8px' }}>Sign in to continue</p>
+      <div className="login-left">
+        <div className="brand-section">
+          <div className="brand-logo">
+            <div className="logo-icon">🏭</div>
+          </div>
+          <h1 className="brand-name">Feroze 1888 Mills</h1>
+          <p className="brand-tagline">Point of Sale System</p>
+          <p className="brand-subtitle">Fair Price Shop Management</p>
+          <div className="brand-features">
+            <div className="feature-item">
+              <span className="feature-icon">✓</span>
+              <span>Fast & Reliable</span>
+            </div>
+            <div className="feature-item">
+              <span className="feature-icon">✓</span>
+              <span>Secure Transactions</span>
+            </div>
+            <div className="feature-item">
+              <span className="feature-icon">✓</span>
+              <span>Real-time Inventory</span>
+            </div>
+          </div>
         </div>
+      </div>
 
-        {error && (
-          <MessageStrip
-            design="Negative"
-            hideCloseButton
-            style={{ marginBottom: '16px' }}
-          >
-            {error}
-          </MessageStrip>
-        )}
-
-        <form onSubmit={handleSubmit} className="login-form">
-          <div className="form-field">
-            <Label required>Email</Label>
-            <Input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email"
-              required
-              style={{ width: '100%' }}
-            />
+      <div className="login-right">
+        <div className="login-card">
+          <div className="login-header">
+            <h2>Welcome Back</h2>
+            <p>Sign in to access your account</p>
           </div>
 
-          <div className="form-field">
-            <Label required>Password</Label>
-            <Input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
-              required
-              style={{ width: '100%' }}
-            />
+          {error && (
+            <div className="error-message">
+              <span className="error-icon">⚠</span>
+              {error}
+            </div>
+          )}
+
+          <div className="login-form">
+            <div className="form-group">
+              <label className="form-label">Email Address</label>
+              <Input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="admin@pos.com"
+                className="form-input"
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Password</label>
+              <Input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Enter your password"
+                className="form-input"
+              />
+            </div>
+
+            <Button
+              design="Emphasized"
+              onClick={handleSubmit}
+              disabled={loading}
+              className="login-button"
+            >
+              {loading ? 'Signing in...' : 'Sign In'}
+            </Button>
           </div>
 
-          <Button
-            design="Emphasized"
-            onClick={handleSubmit}
-            disabled={loading}
-            style={{ width: '100%', marginTop: '16px' }}
-          >
-            {loading ? 'Signing in...' : 'Sign In'}
-          </Button>
-        </form>
-
-        <div className="login-footer">
-          <p>Default credentials: admin@pos.com / admin123</p>
+          <div className="login-footer">
+            <p className="footer-text">© 2026 Feroze 1888 Mills. All rights reserved.</p>
+          </div>
         </div>
-      </Card>
+      </div>
     </div>
   );
 };
