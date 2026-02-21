@@ -215,29 +215,29 @@ const Products = () => {
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 0 }}>
             <thead>
-              <tr style={{ borderBottom: '2px solid #e0e0e0' }}>
-                <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Product Name</th>
-                <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Barcode</th>
-                <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Category</th>
-                <th style={{ padding: '16px', textAlign: 'right', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Price</th>
-                <th style={{ padding: '16px', textAlign: 'center', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Stock</th>
-                <th style={{ padding: '16px', textAlign: 'center', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Status</th>
-                <th style={{ padding: '16px', textAlign: 'center', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Actions</th>
+              <tr style={{ borderBottom: '2px solid var(--border-light)' }}>
+                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '600', color: 'var(--text-primary)', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Product Name</th>
+                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '600', color: 'var(--text-primary)', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Barcode</th>
+                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '600', color: 'var(--text-primary)', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Category</th>
+                <th style={{ padding: '10px 12px', textAlign: 'right', fontWeight: '600', color: 'var(--text-primary)', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Price</th>
+                <th style={{ padding: '10px 12px', textAlign: 'center', fontWeight: '600', color: 'var(--text-primary)', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Stock</th>
+                <th style={{ padding: '10px 12px', textAlign: 'center', fontWeight: '600', color: 'var(--text-primary)', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Status</th>
+                <th style={{ padding: '10px 12px', textAlign: 'center', fontWeight: '600', color: 'var(--text-primary)', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
               {paginatedProducts.map((product, index) => (
-                <tr key={product.id} style={{ borderBottom: index < filteredProducts.length - 1 ? '1px solid #f0f0f0' : 'none' }}>
-                  <td style={{ padding: '16px', color: '#1a1a1a', fontSize: '14px', fontWeight: '500' }}>{product.name}</td>
-                  <td style={{ padding: '16px', color: '#666666', fontSize: '14px', fontFamily: 'monospace' }}>{product.barcode}</td>
-                  <td style={{ padding: '16px', color: '#666666', fontSize: '14px' }}>{product.category}</td>
-                  <td style={{ padding: '16px', color: '#1a1a1a', fontSize: '14px', fontWeight: '600', textAlign: 'right' }}>Rs. {product.price}</td>
-                  <td style={{ padding: '16px', color: product.stock_qty < 10 ? '#dc2626' : '#16a34a', fontSize: '14px', fontWeight: '700', textAlign: 'center' }}>{product.stock_qty}</td>
-                  <td style={{ padding: '16px', textAlign: 'center' }}>
+                <tr key={product.id} style={{ borderBottom: index < filteredProducts.length - 1 ? '1px solid var(--border-light)' : 'none' }}>
+                  <td style={{ padding: '10px 12px', color: 'var(--text-primary)', fontSize: '12px', fontWeight: '500' }}>{product.name}</td>
+                  <td style={{ padding: '10px 12px', color: 'var(--text-secondary)', fontSize: '11px', fontFamily: 'monospace' }}>{product.barcode}</td>
+                  <td style={{ padding: '10px 12px', color: 'var(--text-secondary)', fontSize: '12px' }}>{product.category}</td>
+                  <td style={{ padding: '10px 12px', color: 'var(--text-primary)', fontSize: '12px', fontWeight: '600', textAlign: 'right' }}>Rs. {product.price}</td>
+                  <td style={{ padding: '10px 12px', color: product.stock_qty < 10 ? 'var(--error)' : 'var(--success)', fontSize: '12px', fontWeight: '700', textAlign: 'center' }}>{product.stock_qty}</td>
+                  <td style={{ padding: '10px 12px', textAlign: 'center' }}>
                     <span style={{
-                      padding: '4px 12px',
-                      borderRadius: '4px',
-                      fontSize: '12px',
+                      padding: '3px 10px',
+                      borderRadius: 'var(--radius-sm)',
+                      fontSize: '10px',
                       fontWeight: '600',
                       background: product.status === 'active' ? '#dcfce7' : '#fee2e2',
                       color: product.status === 'active' ? '#16a34a' : '#dc2626'
@@ -245,17 +245,17 @@ const Products = () => {
                       {product.status === 'active' ? 'Active' : 'Inactive'}
                     </span>
                   </td>
-                  <td style={{ padding: '16px', textAlign: 'center' }}>
+                  <td style={{ padding: '10px 12px', textAlign: 'center' }}>
                     <button
                       onClick={() => handleOpenDialog(product)}
                       style={{
-                        padding: '6px 16px',
-                        marginRight: '8px',
-                        background: '#f0f9ff',
-                        border: '1px solid #bfdbfe',
-                        borderRadius: '4px',
-                        color: '#2563eb',
-                        fontSize: '13px',
+                        padding: '4px 12px',
+                        marginRight: '6px',
+                        background: 'var(--primary-blue-pale)',
+                        border: '1px solid var(--border-medium)',
+                        borderRadius: 'var(--radius-sm)',
+                        color: 'var(--primary-blue)',
+                        fontSize: '11px',
                         fontWeight: '500',
                         cursor: 'pointer'
                       }}
@@ -265,12 +265,12 @@ const Products = () => {
                     <button
                       onClick={() => handleDelete(product.id)}
                       style={{
-                        padding: '6px 16px',
-                        background: '#fef2f2',
+                        padding: '4px 12px',
+                        background: 'var(--error-light)',
                         border: '1px solid #fecaca',
-                        borderRadius: '4px',
-                        color: '#dc2626',
-                        fontSize: '13px',
+                        borderRadius: 'var(--radius-sm)',
+                        color: 'var(--error)',
+                        fontSize: '11px',
                         fontWeight: '500',
                         cursor: 'pointer'
                       }}

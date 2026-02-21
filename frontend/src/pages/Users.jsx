@@ -208,44 +208,44 @@ const Users = () => {
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 0 }}>
             <thead>
-              <tr style={{ borderBottom: '2px solid #e0e0e0' }}>
-                <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Name</th>
-                <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Email</th>
-                <th style={{ padding: '16px', textAlign: 'center', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Role</th>
-                <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Created</th>
-                <th style={{ padding: '16px', textAlign: 'center', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Actions</th>
+              <tr style={{ borderBottom: '2px solid var(--border-light)' }}>
+                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '600', color: 'var(--text-primary)', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Name</th>
+                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '600', color: 'var(--text-primary)', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Email</th>
+                <th style={{ padding: '10px 12px', textAlign: 'center', fontWeight: '600', color: 'var(--text-primary)', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Role</th>
+                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '600', color: 'var(--text-primary)', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Created</th>
+                <th style={{ padding: '10px 12px', textAlign: 'center', fontWeight: '600', color: 'var(--text-primary)', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
               {paginatedUsers.map((user, index) => (
-                <tr key={user.id} style={{ borderBottom: index < users.length - 1 ? '1px solid #f0f0f0' : 'none' }}>
-                  <td style={{ padding: '16px', color: '#1a1a1a', fontSize: '14px', fontWeight: '500' }}>{user.name}</td>
-                  <td style={{ padding: '16px', color: '#666666', fontSize: '14px' }}>{user.email}</td>
-                  <td style={{ padding: '16px', textAlign: 'center' }}>
+                <tr key={user.id} style={{ borderBottom: index < users.length - 1 ? '1px solid var(--border-light)' : 'none' }}>
+                  <td style={{ padding: '10px 12px', color: 'var(--text-primary)', fontSize: '12px', fontWeight: '500' }}>{user.name}</td>
+                  <td style={{ padding: '10px 12px', color: 'var(--text-secondary)', fontSize: '12px' }}>{user.email}</td>
+                  <td style={{ padding: '10px 12px', textAlign: 'center' }}>
                     <span style={{
-                      padding: '4px 12px',
-                      borderRadius: '4px',
-                      fontSize: '12px',
+                      padding: '3px 10px',
+                      borderRadius: 'var(--radius-sm)',
+                      fontSize: '10px',
                       fontWeight: '600',
-                      background: user.role === 'admin' ? '#dbeafe' : '#dcfce7',
-                      color: user.role === 'admin' ? '#2563eb' : '#16a34a',
+                      background: user.role === 'admin' ? 'var(--primary-blue-pale)' : 'var(--success-light)',
+                      color: user.role === 'admin' ? 'var(--primary-blue)' : 'var(--success)',
                       textTransform: 'capitalize'
                     }}>
                       {user.role}
                     </span>
                   </td>
-                  <td style={{ padding: '16px', color: '#666666', fontSize: '14px' }}>{user.created_at}</td>
-                  <td style={{ padding: '16px', textAlign: 'center' }}>
+                  <td style={{ padding: '10px 12px', color: 'var(--text-secondary)', fontSize: '12px' }}>{user.created_at}</td>
+                  <td style={{ padding: '10px 12px', textAlign: 'center' }}>
                     <button
                       onClick={() => handleDelete(user.id)}
                       disabled={user.id === 1}
                       style={{
-                        padding: '6px 16px',
-                        background: user.id === 1 ? '#f0f0f0' : '#fef2f2',
-                        border: user.id === 1 ? '1px solid #e0e0e0' : '1px solid #fecaca',
-                        borderRadius: '4px',
-                        color: user.id === 1 ? '#999999' : '#dc2626',
-                        fontSize: '13px',
+                        padding: '4px 12px',
+                        background: user.id === 1 ? 'var(--bg-tertiary)' : 'var(--error-light)',
+                        border: user.id === 1 ? '1px solid var(--border-light)' : '1px solid #fecaca',
+                        borderRadius: 'var(--radius-sm)',
+                        color: user.id === 1 ? 'var(--text-light)' : 'var(--error)',
+                        fontSize: '11px',
                         fontWeight: '500',
                         cursor: user.id === 1 ? 'not-allowed' : 'pointer'
                       }}

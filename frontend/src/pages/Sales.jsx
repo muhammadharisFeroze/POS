@@ -128,22 +128,22 @@ const Sales = () => {
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 0 }}>
             <thead>
-              <tr style={{ borderBottom: '2px solid #e0e0e0' }}>
-                <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Invoice No</th>
-                <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Date & Time</th>
-                <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Customer</th>
-                <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>CNIC</th>
-                <th style={{ padding: '16px', textAlign: 'right', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total</th>
-                <th style={{ padding: '16px', textAlign: 'center', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Payment</th>
-                <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Transaction ID</th>
-                <th style={{ padding: '16px', textAlign: 'center', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Action</th>
+              <tr style={{ borderBottom: '2px solid var(--border-light)' }}>
+                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '600', color: 'var(--text-primary)', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Invoice No</th>
+                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '600', color: 'var(--text-primary)', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Date & Time</th>
+                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '600', color: 'var(--text-primary)', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Customer</th>
+                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '600', color: 'var(--text-primary)', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>CNIC</th>
+                <th style={{ padding: '10px 12px', textAlign: 'right', fontWeight: '600', color: 'var(--text-primary)', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total</th>
+                <th style={{ padding: '10px 12px', textAlign: 'center', fontWeight: '600', color: 'var(--text-primary)', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Payment</th>
+                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '600', color: 'var(--text-primary)', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Transaction ID</th>
+                <th style={{ padding: '10px 12px', textAlign: 'center', fontWeight: '600', color: 'var(--text-primary)', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Action</th>
               </tr>
             </thead>
             <tbody>
               {paginatedSales.map((sale, index) => (
-                <tr key={sale.id} style={{ borderBottom: index < sales.length - 1 ? '1px solid #f0f0f0' : 'none' }}>
-                  <td style={{ padding: '16px', color: '#2563eb', fontSize: '14px', fontWeight: '600', fontFamily: 'monospace' }}>{sale.invoice_no}</td>
-                  <td style={{ padding: '16px', color: '#666666', fontSize: '14px' }}>
+                <tr key={sale.id} style={{ borderBottom: index < sales.length - 1 ? '1px solid var(--border-light)' : 'none' }}>
+                  <td style={{ padding: '10px 12px', color: 'var(--primary-blue)', fontSize: '12px', fontWeight: '600', fontFamily: 'monospace' }}>{sale.invoice_no}</td>
+                  <td style={{ padding: '10px 12px', color: 'var(--text-secondary)', fontSize: '11px' }}>
                     {new Date(sale.datetime).toLocaleString('en-US', { 
                       year: 'numeric', 
                       month: 'short', 

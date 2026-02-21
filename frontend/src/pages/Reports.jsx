@@ -307,9 +307,9 @@ const Reports = () => {
               style={{ width: '100%', marginTop: '8px' }}
             />
           </div>
-          <Button design="Emphasized" onClick={handleExport} style={{ background: '#16a34a' }}>
+          {/* <Button design="Emphasized" onClick={handleExport} style={{ background: '#16a34a' }}>
             Export to Excel
-          </Button>
+          </Button> */}
         </div>
       </div>
 

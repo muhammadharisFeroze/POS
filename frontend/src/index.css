@@ -5,89 +5,145 @@
   box-sizing: border-box;
 }
 
-/* Professional Typography System */
+/* Light Blue Contrast Theme - Compact UI System */
+:root {
+  /* Primary Blue Colors */
+  --primary-blue: #0066cc;
+  --primary-blue-dark: #0052a3;
+  --primary-blue-light: #3385d6;
+  --primary-blue-pale: #e6f2ff;
+  --primary-blue-hover: #0059b8;
+  
+  /* Secondary Blue Colors */
+  --secondary-blue: #4d94ff;
+  --secondary-blue-light: #80b3ff;
+  --secondary-blue-pale: #f0f7ff;
+  
+  /* Neutral Colors */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f5f8fa;
+  --bg-tertiary: #e8f0f7;
+  
+  /* Text Colors */
+  --text-primary: #1a2332;
+  --text-secondary: #4a5568;
+  --text-tertiary: #6b7280;
+  --text-light: #9ca3af;
+  
+  /* Border Colors */
+  --border-light: #d6e3f0;
+  --border-medium: #b8d1e8;
+  --border-dark: #8fb5d8;
+  
+  /* Accent Colors */
+  --success: #059669;
+  --success-light: #d1fae5;
+  --warning: #f59e0b;
+  --warning-light: #fef3c7;
+  --error: #dc2626;
+  --error-light: #fee2e2;
+  
+  /* Spacing - Compact */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 20px;
+  
+  /* Border Radius */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 102, 204, 0.06);
+  --shadow-md: 0 2px 4px rgba(0, 102, 204, 0.1);
+  --shadow-lg: 0 4px 8px rgba(0, 102, 204, 0.12);
+}
+
+/* Professional Typography System - Compact */
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-size: 14px;
-  line-height: 1.5;
-  color: #1f2937;
-  background-color: #fafafa;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--text-primary);
+  background-color: var(--bg-secondary);
 }
 
 code {
   font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-  font-size: 13px;
+  font-size: 12px;
 }
 
-/* Typography Scale - Professional & Clean */
+/* Typography Scale - Compact & Professional */
 h1 {
-  font-size: 24px;
-  font-weight: 700;
-  line-height: 1.3;
-  letter-spacing: -0.5px;
-  color: #111827;
-}
-
-h2 {
   font-size: 20px;
   font-weight: 700;
   line-height: 1.3;
+  letter-spacing: -0.4px;
+  color: var(--text-primary);
+}
+
+h2 {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.3;
   letter-spacing: -0.3px;
-  color: #111827;
+  color: var(--text-primary);
 }
 
 h3 {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
-  line-height: 1.4;
+  line-height: 1.3;
   letter-spacing: -0.2px;
-  color: #1f2937;
+  color: var(--text-primary);
 }
 
 h4 {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
-  line-height: 1.4;
-  color: #1f2937;
+  line-height: 1.3;
+  color: var(--text-secondary);
 }
 
 h5 {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
-  line-height: 1.4;
-  color: #374151;
+  line-height: 1.3;
+  color: var(--text-secondary);
 }
 
 h6 {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
-  line-height: 1.4;
+  line-height: 1.3;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: #6b7280;
+  color: var(--text-tertiary);
 }
 
 p {
-  font-size: 14px;
-  line-height: 1.6;
+  font-size: 13px;
+  line-height: 1.5;
   margin: 0;
-  color: #374151;
+  color: var(--text-secondary);
 }
 
 small {
-  font-size: 12px;
-  line-height: 1.5;
-  color: #6b7280;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--text-tertiary);
 }
 
 /* Button Styles */
 button {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
-  letter-spacing: -0.05px;
+  letter-spacing: 0;
   font-family: inherit;
 }
 
@@ -95,79 +151,81 @@ button {
 input, 
 textarea, 
 select {
-  font-size: 13px;
-  line-height: 1.5;
+  font-size: 12px;
+  line-height: 1.4;
   font-family: inherit;
 }
 
 label {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
-  color: #374151;
+  color: var(--text-secondary);
 }
 
 /* Table Styles */
 table {
-  font-size: 13px;
+  font-size: 12px;
 }
 
 thead {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: #6b7280;
+  color: var(--text-tertiary);
 }
 
 tbody {
-  font-size: 13px;
-  color: #1f2937;
+  font-size: 12px;
+  color: var(--text-primary);
 }
 
 /* Link Styles */
 a {
-  font-size: 14px;
+  font-size: 13px;
   text-decoration: none;
-  color: #2563eb;
+  color: var(--primary-blue);
   transition: color 0.2s ease;
 }
 
 a:hover {
-  color: #1d4ed8;
+  color: var(--primary-blue-hover);
 }
 
 /* Utility Text Classes */
 .text-xs {
-  font-size: 11px;
+  font-size: 10px;
 }
 
 .text-sm {
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .text-base {
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .text-lg {
-  font-size: 16px;
+  font-size: 14px;
 }
 
 .text-xl {
-  font-size: 18px;
+  font-size: 16px;
 }
 
 .text-2xl {
-  font-size: 20px;
+  font-size: 18px;
 }
 
-/* UI5 Component Overrides for Consistent Typography */
+/* UI5 Component Overrides for Compact Theme */
 [ui5-button] {
-  font-size: 13px !important;
+  font-size: 12px !important;
+  --sapButton_Height: 2rem !important;
 }
 
 [ui5-input] {
-  font-size: 13px !important;
+  font-size: 12px !important;
+  --sapElement_Height: 2rem !important;
 }
 
 [ui5-title] {
@@ -175,11 +233,11 @@ a:hover {
 }
 
 [ui5-text] {
-  font-size: 13px !important;
+  font-size: 12px !important;
 }
 
 [ui5-label] {
-  font-size: 13px !important;
+  font-size: 12px !important;
 }
 
 /* Remove default margins from UI5 components */
@@ -187,4 +245,23 @@ a:hover {
 [ui5-text],
 [ui5-label] {
   margin: 0 !important;
+}
+
+/* Global Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-tertiary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-medium);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-blue);
 }

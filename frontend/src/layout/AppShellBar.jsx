@@ -22,27 +22,30 @@ const AppShellBar = () => {
 
   return (
     <div style={{
-      background: '#ffffff',
-      borderBottom: '1px solid #e0e0e0',
-      padding: '0 32px',
-      height: '64px',
+      background: 'linear-gradient(135deg, #0066cc 0%, #0052a3 100%)',
+      borderBottom: '1px solid #0052a3',
+      padding: '0 20px',
+      height: '61px',
       display: 'flex',
       alignItems: 'center',
-      justifyContent: 'space-between'
+      justifyContent: 'space-between',
+      boxShadow: '0 2px 4px rgba(0, 102, 204, 0.15)'
     }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
         <div style={{
           cursor: 'pointer',
           display: 'flex',
           alignItems: 'center',
-          height: '48px'
+          height: '44px'
         }} onClick={handleLogoClick}>
           <img 
             src={logo} 
             alt="Feroze 1888 Mills" 
             style={{
-              height: '48px',
-              width: 'auto',
+              // height: '44px',
+              // width: 'auto',
+              height: '50px',
+              width: '167px',
               objectFit: 'contain',
               transition: 'transform 0.2s ease'
             }}
@@ -51,44 +54,50 @@ const AppShellBar = () => {
           />
         </div>
         <div style={{
-          fontSize: '12px',
-          fontWeight: '500',
-          color: '#666666',
+          fontSize: '10px',
+          fontWeight: '600',
+          color: '#ffffff',
           textTransform: 'uppercase',
           letterSpacing: '0.5px',
-          padding: '4px 12px',
-          background: '#f0f9ff',
+          padding: '4px 10px',
+          background: 'rgba(255, 255, 255, 0.2)',
           borderRadius: '4px',
-          border: '1px solid #bfdbfe'
+          border: '1px solid rgba(255, 255, 255, 0.3)'
         }}>
           {user?.role === 'admin' ? 'Administrator' : 'Cashier'}
         </div>
       </div>
       
-      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-        <div style={{ textAlign: 'right', marginRight: '12px' }}>
-          <div style={{ fontSize: '14px', fontWeight: '600', color: '#1a1a1a' }}>{user?.name || 'User'}</div>
-          <div style={{ fontSize: '12px', color: '#666666' }}>{user?.email}</div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div style={{ textAlign: 'right', marginRight: '8px' }}>
+          <div style={{ fontSize: '12px', fontWeight: '600', color: '#ffffff' }}>{user?.name || 'User'}</div>
+          <div style={{ fontSize: '10px', color: 'rgba(255, 255, 255, 0.8)' }}>{user?.email}</div>
         </div>
         <button
           onClick={handleProfileClick}
           style={{
-            width: '40px',
-            height: '40px',
+            width: '36px',
+            height: '36px',
             borderRadius: '50%',
-            background: '#2563eb',
-            border: 'none',
-            color: '#ffffff',
-            fontSize: '16px',
-            fontWeight: '600',
+            background: '#ffffff',
+            border: '2px solid rgba(255, 255, 255, 0.3)',
+            color: '#0066cc',
+            fontSize: '14px',
+            fontWeight: '700',
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             transition: 'all 0.2s ease'
           }}
-          onMouseOver={(e) => e.currentTarget.style.background = '#1d4ed8'}
-          onMouseOut={(e) => e.currentTarget.style.background = '#2563eb'}
+          onMouseOver={(e) => {
+            e.currentTarget.style.background = '#e6f2ff';
+            e.currentTarget.style.transform = 'scale(1.1)';
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.background = '#ffffff';
+            e.currentTarget.style.transform = 'scale(1)';
+          }}
         >
           {user?.name?.charAt(0) || 'U'}
         </button>

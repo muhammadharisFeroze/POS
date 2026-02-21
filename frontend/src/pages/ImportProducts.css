@@ -1,11 +1,11 @@
 .import-products-page {
-  padding: 32px;
-  max-width: 1200px;
+  padding: var(--spacing-xl);
+  max-width: 1000px;
   margin: 0 auto;
 }
 
 @media (max-width: 768px) {
   .import-products-page {
-    padding: 16px;
+    padding: var(--spacing-md);
   }
 }

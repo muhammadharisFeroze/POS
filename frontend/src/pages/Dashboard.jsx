@@ -93,21 +93,21 @@ const Dashboard = () => {
             <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 0 }}>
               <thead>
                 <tr style={{ borderBottom: '2px solid #e0e0e0' }}>
-                  <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Product Name</th>
-                  <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Category</th>
-                  <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Stock Quantity</th>
-                  <th style={{ padding: '16px', textAlign: 'right', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Price</th>
+                  <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '600', color: 'var(--text-primary)', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Product Name</th>
+                  <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '600', color: 'var(--text-primary)', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Category</th>
+                  <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '600', color: 'var(--text-primary)', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Stock Quantity</th>
+                  <th style={{ padding: '10px 12px', textAlign: 'right', fontWeight: '600', color: 'var(--text-primary)', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Price</th>
                 </tr>
               </thead>
               <tbody>
                 {stats.low_stock_products.map((product, index) => (
                   <tr key={product.id} style={{ borderBottom: index < stats.low_stock_products.length - 1 ? '1px solid #f0f0f0' : 'none' }}>
-                    <td style={{ padding: '16px', color: '#1a1a1a', fontSize: '14px', fontWeight: '500' }}>{product.name}</td>
-                    <td style={{ padding: '16px', color: '#666666', fontSize: '14px' }}>{product.category}</td>
-                    <td style={{ padding: '16px', color: product.stock_qty < 5 ? '#dc2626' : '#f59e0b', fontSize: '14px', fontWeight: '700' }}>
+                    <td style={{ padding: '10px 12px', color: 'var(--text-primary)', fontSize: '12px', fontWeight: '500' }}>{product.name}</td>
+                    <td style={{ padding: '10px 12px', color: 'var(--text-secondary)', fontSize: '12px' }}>{product.category}</td>
+                    <td style={{ padding: '10px 12px', color: product.stock_qty < 5 ? 'var(--error)' : 'var(--warning)', fontSize: '12px', fontWeight: '700' }}>
                       {product.stock_qty}
                     </td>
-                    <td style={{ padding: '16px', color: '#1a1a1a', fontSize: '14px', fontWeight: '600', textAlign: 'right' }}>Rs. {product.price}</td>
+                    <td style={{ padding: '10px 12px', color: 'var(--text-primary)', fontSize: '12px', fontWeight: '600', textAlign: 'right' }}>Rs. {product.price}</td>
                   </tr>
                 ))}
               </tbody>

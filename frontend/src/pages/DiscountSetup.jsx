@@ -252,45 +252,45 @@ const DiscountSetup = () => {
                 <div style={{ overflowX: 'auto' }}>
                     <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 0 }}>
                         <thead>
-                            <tr style={{ borderBottom: '2px solid #e0e0e0' }}>
-                                <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Product</th>
-                                <th style={{ padding: '16px', textAlign: 'center', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Discount %</th>
-                                <th style={{ padding: '16px', textAlign: 'center', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Valid From</th>
-                                <th style={{ padding: '16px', textAlign: 'center', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Valid Till</th>
-                                <th style={{ padding: '16px', textAlign: 'center', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Status</th>
-                                <th style={{ padding: '16px', textAlign: 'center', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Actions</th>
+                            <tr style={{ borderBottom: '2px solid var(--border-light)' }}>
+                                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '600', color: 'var(--text-primary)', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Product</th>
+                                <th style={{ padding: '10px 12px', textAlign: 'center', fontWeight: '600', color: 'var(--text-primary)', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Discount %</th>
+                                <th style={{ padding: '10px 12px', textAlign: 'center', fontWeight: '600', color: 'var(--text-primary)', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Valid From</th>
+                                <th style={{ padding: '10px 12px', textAlign: 'center', fontWeight: '600', color: 'var(--text-primary)', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Valid Till</th>
+                                <th style={{ padding: '10px 12px', textAlign: 'center', fontWeight: '600', color: 'var(--text-primary)', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Status</th>
+                                <th style={{ padding: '10px 12px', textAlign: 'center', fontWeight: '600', color: 'var(--text-primary)', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {paginatedDiscounts.map((discount, index) => (
-                                <tr key={discount.id} style={{ borderBottom: index < paginatedDiscounts.length - 1 ? '1px solid #f0f0f0' : 'none' }}>
-                                    <td style={{ padding: '16px', color: '#1a1a1a', fontSize: '14px', fontWeight: '500' }}>{discount.product_name}</td>
-                                    <td style={{ padding: '16px', color: '#2563eb', fontSize: '14px', fontWeight: '700', textAlign: 'center' }}>{discount.discount_percent}%</td>
-                                    <td style={{ padding: '16px', color: '#666666', fontSize: '14px', textAlign: 'center' }}>{new Date(discount.valid_from).toLocaleDateString()}</td>
-                                    <td style={{ padding: '16px', color: '#666666', fontSize: '14px', textAlign: 'center' }}>{new Date(discount.valid_till).toLocaleDateString()}</td>
-                                    <td style={{ padding: '16px', textAlign: 'center' }}>
+                                <tr key={discount.id} style={{ borderBottom: index < paginatedDiscounts.length - 1 ? '1px solid var(--border-light)' : 'none' }}>
+                                    <td style={{ padding: '10px 12px', color: 'var(--text-primary)', fontSize: '12px', fontWeight: '500' }}>{discount.product_name}</td>
+                                    <td style={{ padding: '10px 12px', color: 'var(--primary-blue)', fontSize: '12px', fontWeight: '700', textAlign: 'center' }}>{discount.discount_percent}%</td>
+                                    <td style={{ padding: '10px 12px', color: 'var(--text-secondary)', fontSize: '11px', textAlign: 'center' }}>{new Date(discount.valid_from).toLocaleDateString()}</td>
+                                    <td style={{ padding: '10px 12px', color: 'var(--text-secondary)', fontSize: '11px', textAlign: 'center' }}>{new Date(discount.valid_till).toLocaleDateString()}</td>
+                                    <td style={{ padding: '10px 12px', textAlign: 'center' }}>
                                         <span style={{
-                                            padding: '4px 12px',
-                                            borderRadius: '4px',
-                                            fontSize: '12px',
+                                            padding: '3px 10px',
+                                            borderRadius: 'var(--radius-sm)',
+                                            fontSize: '10px',
                                             fontWeight: '600',
-                                            background: discount.active ? '#dcfce7' : '#fee2e2',
-                                            color: discount.active ? '#16a34a' : '#dc2626'
+                                            background: discount.active ? 'var(--success-light)' : 'var(--error-light)',
+                                            color: discount.active ? 'var(--success)' : 'var(--error)'
                                         }}>
                                             {discount.active ? 'Active' : 'Inactive'}
                                         </span>
                                     </td>
-                                    <td style={{ padding: '16px', textAlign: 'center' }}>
+                                    <td style={{ padding: '10px 12px', textAlign: 'center' }}>
                                         <button
                                             onClick={() => handleOpenDialog(discount)}
                                             style={{
-                                                padding: '6px 16px',
-                                                marginRight: '8px',
-                                                background: '#f0f9ff',
-                                                border: '1px solid #bfdbfe',
-                                                borderRadius: '4px',
-                                                color: '#2563eb',
-                                                fontSize: '13px',
+                                                padding: '4px 12px',
+                                                marginRight: '6px',
+                                                background: 'var(--primary-blue-pale)',
+                                                border: '1px solid var(--border-medium)',
+                                                borderRadius: 'var(--radius-sm)',
+                                                color: 'var(--primary-blue)',
+                                                fontSize: '11px',
                                                 fontWeight: '500',
                                                 cursor: 'pointer'
                                             }}
@@ -300,12 +300,12 @@ const DiscountSetup = () => {
                                         <button
                                             onClick={() => handleDelete(discount.id)}
                                             style={{
-                                                padding: '6px 16px',
-                                                background: '#fef2f2',
+                                                padding: '4px 12px',
+                                                background: 'var(--error-light)',
                                                 border: '1px solid #fecaca',
-                                                borderRadius: '4px',
-                                                color: '#dc2626',
-                                                fontSize: '13px',
+                                                borderRadius: 'var(--radius-sm)',
+                                                color: 'var(--error)',
+                                                fontSize: '11px',
                                                 fontWeight: '500',
                                                 cursor: 'pointer'
                                             }}
