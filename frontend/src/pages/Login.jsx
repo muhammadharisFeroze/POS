@@ -25,30 +25,21 @@ const Login = () => {
     e.preventDefault();
     setError('');
     setLoading(true);
-    
-    console.log('Login attempt:', email, password);
 
     try {
-      // Mock authentication for demo (remove when backend is ready)
-      if (email === 'admin@pos.com' && password === 'admin123') {
-        const mockUser = {
-          id: 1,
-          name: 'Admin User',
-          email: 'admin@pos.com',
-          role: 'admin'
-        };
-        const mockToken = 'mock-jwt-token-' + Date.now();
-        
-        console.log('Login successful, setting auth...');
-        setAuth(mockUser, mockToken);
-        console.log('Navigating to dashboard...');
+      // Call real backend API
+      const response = await authAPI.login(email, password);
+      
+      if (response.data) {
+        const { user, token } = response.data;
+        setAuth(user, token);
         navigate('/dashboard');
       } else {
-        setError('Invalid credentials. Use: admin@pos.com / admin123');
+        setError('Login failed. Please try again.');
       }
     } catch (err) {
       console.error('Login error:', err);
-      setError(err.response?.data?.message || 'Login failed');
+      setError(err.response?.data?.message || 'Invalid email or password');
     } finally {
       setLoading(false);
     }

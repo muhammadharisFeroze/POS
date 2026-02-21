@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Title,
   Button,
@@ -7,34 +7,50 @@ import {
   Label,
   Select,
   Option,
+  BusyIndicator,
+  MessageStrip,
 } from '@ui5/webcomponents-react';
+import { salesAPI } from '../services/api';
 import './Reports.css';
 
 const Reports = () => {
   const [reportType, setReportType] = useState('daily');
   const [startDate, setStartDate] = useState('2026-02-01');
   const [endDate, setEndDate] = useState('2026-02-21');
+  const [reportData, setReportData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState({ type: '', text: '' });
 
-  // Mock report data
-  const dailySalesData = [
-    { date: '2026-02-21', transactions: 87, subtotal: 15234.50, tax: 1523.45, total: 16757.95 },
-    { date: '2026-02-20', transactions: 72, subtotal: 12890.00, tax: 1289.00, total: 14179.00 },
-    { date: '2026-02-19', transactions: 95, subtotal: 18450.00, tax: 1845.00, total: 20295.00 },
-  ];
+  useEffect(() => {
+    fetchReport();
+  }, [reportType, startDate, endDate]);
 
-  const productWiseData = [
-    { product: 'Coca Cola 500ml', category: 'Beverages', quantity: 145, revenue: 21750 },
-    { product: 'Lays Chips', category: 'Snacks', quantity: 198, revenue: 23760 },
-    { product: 'Bread Loaf', category: 'Bakery', quantity: 89, revenue: 16020 },
-    { product: 'Milk 1L', category: 'Dairy', quantity: 134, revenue: 37520 },
-    { product: 'Eggs (12 pack)', category: 'Dairy', quantity: 67, revenue: 28140 },
-  ];
-
-  const taxReportData = [
-    { date: '2026-02-21', subtotal: 15234.50, tax: 1523.45, total: 16757.95 },
-    { date: '2026-02-20', subtotal: 12890.00, tax: 1289.00, total: 14179.00 },
-    { date: '2026-02-19', subtotal: 18450.00, tax: 1845.00, total: 20295.00 },
-  ];
+  const fetchReport = async () => {
+    if (!startDate || !endDate) return;
+    
+    setLoading(true);
+    try {
+      let response;
+      const params = { start_date: startDate, end_date: endDate };
+      
+      if (reportType === 'daily') {
+        response = await salesAPI.getDailyReport(params);
+      } else if (reportType === 'product') {
+        response = await salesAPI.getProductWiseReport(params);
+      } else if (reportType === 'tax') {
+        response = await salesAPI.getTaxReport(params);
+      }
+      
+      if (response.data.success) {
+        setReportData(response.data.data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch report:', error);
+      setMessage({ type: 'error', text: 'Failed to load report' });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleExport = () => {
     alert('Export to Excel functionality will be implemented with backend integration');
@@ -53,32 +69,39 @@ const Reports = () => {
           </tr>
         </thead>
         <tbody>
-          {dailySalesData.map((row, index) => (
-            <tr key={index} style={{ borderBottom: index < dailySalesData.length - 1 ? '1px solid #f0f0f0' : 'none' }}>
+          {reportData.map((row, index) => (
+            <tr key={index} style={{ borderBottom: index < reportData.length - 1 ? '1px solid #f0f0f0' : 'none' }}>
               <td style={{ padding: '16px', color: '#1a1a1a', fontSize: '14px', fontWeight: '500' }}>{row.date}</td>
               <td style={{ padding: '16px', color: '#2563eb', fontSize: '14px', fontWeight: '700', textAlign: 'center' }}>{row.transactions}</td>
-              <td style={{ padding: '16px', color: '#1a1a1a', fontSize: '14px', fontWeight: '600', textAlign: 'right' }}>Rs. {row.subtotal.toFixed(2)}</td>
-              <td style={{ padding: '16px', color: '#16a34a', fontSize: '14px', fontWeight: '600', textAlign: 'right' }}>Rs. {row.tax.toFixed(2)}</td>
-              <td style={{ padding: '16px', color: '#1a1a1a', fontSize: '14px', fontWeight: '700', textAlign: 'right' }}>Rs. {row.total.toFixed(2)}</td>
+              <td style={{ padding: '16px', color: '#1a1a1a', fontSize: '14px', fontWeight: '600', textAlign: 'right' }}>Rs. {parseFloat(row.subtotal).toFixed(2)}</td>
+              <td style={{ padding: '16px', color: '#16a34a', fontSize: '14px', fontWeight: '600', textAlign: 'right' }}>Rs. {parseFloat(row.tax).toFixed(2)}</td>
+              <td style={{ padding: '16px', color: '#1a1a1a', fontSize: '14px', fontWeight: '700', textAlign: 'right' }}>Rs. {parseFloat(row.total).toFixed(2)}</td>
             </tr>
           ))}
-          <tr style={{ borderTop: '2px solid #e0e0e0', background: '#fafafa' }}>
-            <td style={{ padding: '16px', fontWeight: '700' }}>TOTAL</td>
-            <td style={{ padding: '16px', textAlign: 'center', fontWeight: '700', color: '#2563eb' }}>
-              {dailySalesData.reduce((sum, row) => sum + row.transactions, 0)}
-            </td>
-            <td style={{ padding: '16px', textAlign: 'right', fontWeight: '700' }}>
-              Rs. {dailySalesData.reduce((sum, row) => sum + row.subtotal, 0).toFixed(2)}
-            </td>
-            <td style={{ padding: '16px', textAlign: 'right', fontWeight: '700', color: '#16a34a' }}>
-              Rs. {dailySalesData.reduce((sum, row) => sum + row.tax, 0).toFixed(2)}
-            </td>
-            <td style={{ padding: '16px', textAlign: 'right', fontWeight: '700', fontSize: '16px', color: '#2563eb' }}>
-              Rs. {dailySalesData.reduce((sum, row) => sum + row.total, 0).toFixed(2)}
-            </td>
-          </tr>
+          {reportData.length > 0 && (
+            <tr style={{ borderTop: '2px solid #e0e0e0', background: '#fafafa' }}>
+              <td style={{ padding: '16px', fontWeight: '700' }}>TOTAL</td>
+              <td style={{ padding: '16px', textAlign: 'center', fontWeight: '700', color: '#2563eb' }}>
+                {reportData.reduce((sum, row) => sum + parseInt(row.transactions || 0), 0)}
+              </td>
+              <td style={{ padding: '16px', textAlign: 'right', fontWeight: '700' }}>
+                Rs. {reportData.reduce((sum, row) => sum + parseFloat(row.subtotal || 0), 0).toFixed(2)}
+              </td>
+              <td style={{ padding: '16px', textAlign: 'right', fontWeight: '700', color: '#16a34a' }}>
+                Rs. {reportData.reduce((sum, row) => sum + parseFloat(row.tax || 0), 0).toFixed(2)}
+              </td>
+              <td style={{ padding: '16px', textAlign: 'right', fontWeight: '700', fontSize: '16px', color: '#2563eb' }}>
+                Rs. {reportData.reduce((sum, row) => sum + parseFloat(row.total || 0), 0).toFixed(2)}
+              </td>
+            </tr>
+          )}
         </tbody>
       </table>
+      {reportData.length === 0 && (
+        <div style={{ textAlign: 'center', padding: '40px', color: '#666666' }}>
+          No data available for the selected period
+        </div>
+      )}
     </div>
   );
 
@@ -94,25 +117,32 @@ const Reports = () => {
           </tr>
         </thead>
         <tbody>
-          {productWiseData.map((row, index) => (
-            <tr key={index} style={{ borderBottom: index < productWiseData.length - 1 ? '1px solid #f0f0f0' : 'none' }}>
-              <td style={{ padding: '16px', color: '#1a1a1a', fontSize: '14px', fontWeight: '500' }}>{row.product}</td>
+          {reportData.map((row, index) => (
+            <tr key={index} style={{ borderBottom: index < reportData.length - 1 ? '1px solid #f0f0f0' : 'none' }}>
+              <td style={{ padding: '16px', color: '#1a1a1a', fontSize: '14px', fontWeight: '500' }}>{row.product || row.name}</td>
               <td style={{ padding: '16px', color: '#666666', fontSize: '14px' }}>{row.category}</td>
-              <td style={{ padding: '16px', color: '#2563eb', fontSize: '14px', fontWeight: '700', textAlign: 'center' }}>{row.quantity}</td>
-              <td style={{ padding: '16px', color: '#16a34a', fontSize: '14px', fontWeight: '700', textAlign: 'right' }}>Rs. {row.revenue.toFixed(2)}</td>
+              <td style={{ padding: '16px', color: '#2563eb', fontSize: '14px', fontWeight: '700', textAlign: 'center' }}>{row.quantity || row.quantity_sold}</td>
+              <td style={{ padding: '16px', color: '#16a34a', fontSize: '14px', fontWeight: '700', textAlign: 'right' }}>Rs. {parseFloat(row.revenue || row.total_revenue).toFixed(2)}</td>
             </tr>
           ))}
-          <tr style={{ borderTop: '2px solid #e0e0e0', background: '#fafafa' }}>
-            <td colSpan="2" style={{ padding: '16px', fontWeight: '700' }}>TOTAL</td>
-            <td style={{ padding: '16px', textAlign: 'center', fontWeight: '700', color: '#2563eb' }}>
-              {productWiseData.reduce((sum, row) => sum + row.quantity, 0)}
-            </td>
-            <td style={{ padding: '16px', textAlign: 'right', fontWeight: '700', fontSize: '16px', color: '#16a34a' }}>
-              Rs. {productWiseData.reduce((sum, row) => sum + row.revenue, 0).toFixed(2)}
-            </td>
-          </tr>
+          {reportData.length > 0 && (
+            <tr style={{ borderTop: '2px solid #e0e0e0', background: '#fafafa' }}>
+              <td colSpan="2" style={{ padding: '16px', fontWeight: '700' }}>TOTAL</td>
+              <td style={{ padding: '16px', textAlign: 'center', fontWeight: '700', color: '#2563eb' }}>
+                {reportData.reduce((sum, row) => sum + parseInt(row.quantity || row.quantity_sold || 0), 0)}
+              </td>
+              <td style={{ padding: '16px', textAlign: 'right', fontWeight: '700', fontSize: '16px', color: '#16a34a' }}>
+                Rs. {reportData.reduce((sum, row) => sum + parseFloat(row.revenue || row.total_revenue || 0), 0).toFixed(2)}
+              </td>
+            </tr>
+          )}
         </tbody>
       </table>
+      {reportData.length === 0 && (
+        <div style={{ textAlign: 'center', padding: '40px', color: '#666666' }}>
+          No data available for the selected period
+        </div>
+      )}
     </div>
   );
 
@@ -128,28 +158,35 @@ const Reports = () => {
           </tr>
         </thead>
         <tbody>
-          {taxReportData.map((row, index) => (
-            <tr key={index} style={{ borderBottom: index < taxReportData.length - 1 ? '1px solid #f0f0f0' : 'none' }}>
+          {reportData.map((row, index) => (
+            <tr key={index} style={{ borderBottom: index < reportData.length - 1 ? '1px solid #f0f0f0' : 'none' }}>
               <td style={{ padding: '16px', color: '#1a1a1a', fontSize: '14px', fontWeight: '500' }}>{row.date}</td>
-              <td style={{ padding: '16px', color: '#1a1a1a', fontSize: '14px', fontWeight: '600', textAlign: 'right' }}>Rs. {row.subtotal.toFixed(2)}</td>
-              <td style={{ padding: '16px', color: '#16a34a', fontSize: '14px', fontWeight: '700', textAlign: 'right' }}>Rs. {row.tax.toFixed(2)}</td>
-              <td style={{ padding: '16px', color: '#1a1a1a', fontSize: '14px', fontWeight: '700', textAlign: 'right' }}>Rs. {row.total.toFixed(2)}</td>
+              <td style={{ padding: '16px', color: '#1a1a1a', fontSize: '14px', fontWeight: '600', textAlign: 'right' }}>Rs. {parseFloat(row.subtotal).toFixed(2)}</td>
+              <td style={{ padding: '16px', color: '#16a34a', fontSize: '14px', fontWeight: '700', textAlign: 'right' }}>Rs. {parseFloat(row.tax || row.tax_collected).toFixed(2)}</td>
+              <td style={{ padding: '16px', color: '#1a1a1a', fontSize: '14px', fontWeight: '700', textAlign: 'right' }}>Rs. {parseFloat(row.total).toFixed(2)}</td>
             </tr>
           ))}
-          <tr style={{ borderTop: '2px solid #e0e0e0', background: '#fafafa' }}>
-            <td style={{ padding: '16px', fontWeight: '700' }}>TOTAL</td>
-            <td style={{ padding: '16px', textAlign: 'right', fontWeight: '700' }}>
-              Rs. {taxReportData.reduce((sum, row) => sum + row.subtotal, 0).toFixed(2)}
-            </td>
-            <td style={{ padding: '16px', textAlign: 'right', fontWeight: '700', fontSize: '16px', color: '#16a34a' }}>
-              Rs. {taxReportData.reduce((sum, row) => sum + row.tax, 0).toFixed(2)}
-            </td>
-            <td style={{ padding: '16px', textAlign: 'right', fontWeight: '700', fontSize: '16px', color: '#2563eb' }}>
-              Rs. {taxReportData.reduce((sum, row) => sum + row.total, 0).toFixed(2)}
-            </td>
-          </tr>
+          {reportData.length > 0 && (
+            <tr style={{ borderTop: '2px solid #e0e0e0', background: '#fafafa' }}>
+              <td style={{ padding: '16px', fontWeight: '700' }}>TOTAL</td>
+              <td style={{ padding: '16px', textAlign: 'right', fontWeight: '700' }}>
+                Rs. {reportData.reduce((sum, row) => sum + parseFloat(row.subtotal || 0), 0).toFixed(2)}
+              </td>
+              <td style={{ padding: '16px', textAlign: 'right', fontWeight: '700', fontSize: '16px', color: '#16a34a' }}>
+                Rs. {reportData.reduce((sum, row) => sum + parseFloat(row.tax || row.tax_collected || 0), 0).toFixed(2)}
+              </td>
+              <td style={{ padding: '16px', textAlign: 'right', fontWeight: '700', fontSize: '16px', color: '#2563eb' }}>
+                Rs. {reportData.reduce((sum, row) => sum + parseFloat(row.total || 0), 0).toFixed(2)}
+              </td>
+            </tr>
+          )}
         </tbody>
       </table>
+      {reportData.length === 0 && (
+        <div style={{ textAlign: 'center', padding: '40px', color: '#666666' }}>
+          No data available for the selected period
+        </div>
+      )}
     </div>
   );
 

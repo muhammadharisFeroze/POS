@@ -59,6 +59,21 @@ const createTables = async () => {
       )
     `);
 
+    // Discounts table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS discounts (
+        id SERIAL PRIMARY KEY,
+        product_id INTEGER REFERENCES products(id) ON DELETE CASCADE,
+        discount_percent DECIMAL(5, 2) NOT NULL CHECK (discount_percent >= 0 AND discount_percent <= 100),
+        valid_from DATE NOT NULL,
+        valid_till DATE NOT NULL,
+        active BOOLEAN DEFAULT true,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        CONSTRAINT valid_date_range CHECK (valid_till >= valid_from)
+      )
+    `);
+
     console.log('✅ All tables created successfully');
   } catch (error) {
     console.error('❌ Error creating tables:', error);

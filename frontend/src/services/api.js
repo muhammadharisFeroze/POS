@@ -61,4 +61,25 @@ export const salesAPI = {
   getTaxReport: (params) => api.get('/sales/reports/tax', { params }),
 };
 
+// User APIs
+export const userAPI = {
+  getAll: () => api.get('/users'),
+  getById: (id) => api.get(`/users/${id}`),
+  create: (data) => api.post('/users', data),
+  update: (id, data) => api.put(`/users/${id}`, data),
+  delete: (id) => api.delete(`/users/${id}`),
+  changePassword: (id, newPassword) => api.patch(`/users/${id}/password`, { newPassword }),
+};
+
+// Discount APIs
+export const discountAPI = {
+  getAll: (params) => api.get('/discounts', { params }),
+  getById: (id) => api.get(`/discounts/${id}`),
+  create: (data) => api.post('/discounts', data),
+  update: (id, data) => api.put(`/discounts/${id}`, data),
+  delete: (id) => api.delete(`/discounts/${id}`),
+  getActiveDiscounts: (date) => api.get('/discounts/active/list', { params: { date } }),
+  getProductDiscount: (productId, date) => api.get(`/discounts/product/${productId}`, { params: { date } }),
+};
+
 export default api;

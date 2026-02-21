@@ -8,6 +8,7 @@ import POS from '../pages/POS';
 import Sales from '../pages/Sales';
 import Reports from '../pages/Reports';
 import Users from '../pages/Users';
+import DiscountSetup from '../pages/DiscountSetup';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -41,6 +42,7 @@ const AppRoutes = () => {
           <Route path="sales" element={<Sales />} />
           <Route path="reports" element={<Reports />} />
           <Route path="users" element={<Users />} />
+          <Route path="discountsetup" element={<DiscountSetup />} />
         </Route>
       </Routes>
     </BrowserRouter>

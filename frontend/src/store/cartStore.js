@@ -41,22 +41,25 @@ export const useCartStore = create((set) => ({
   getCartSummary: () => {
     const state = useCartStore.getState();
     let subtotal = 0;
+    let totalItemDiscount = 0;
     let totalTax = 0;
     
     state.cart.forEach(item => {
       const lineTotal = item.price * item.quantity;
-      const lineDiscount = item.discount || 0;
+      const lineDiscount = (item.discount || 0) * item.quantity;
       const taxableAmount = lineTotal - lineDiscount;
-      const lineTax = (taxableAmount * item.tax_percent) / 100;
+      const lineTax = (taxableAmount * (item.tax_percent || 0)) / 100;
       
       subtotal += lineTotal;
+      totalItemDiscount += lineDiscount;
       totalTax += lineTax;
     });
     
-    const total = subtotal - state.invoiceDiscount + totalTax;
+    const total = subtotal - totalItemDiscount - state.invoiceDiscount + totalTax;
     
     return {
       subtotal: subtotal.toFixed(2),
+      itemDiscount: totalItemDiscount.toFixed(2),
       discount: state.invoiceDiscount.toFixed(2),
       tax: totalTax.toFixed(2),
       total: total.toFixed(2)

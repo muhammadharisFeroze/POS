@@ -19,22 +19,11 @@ const Dashboard = () => {
 
   const fetchDashboardStats = async () => {
     try {
-      // Mock data for demo (replace with API call when backend is ready)
-      const mockStats = {
-        total_sales: 15234.50,
-        total_tax: 1523.45,
-        total_transactions: 87,
-        low_stock_products: [
-          { id: 1, name: 'Coca Cola 500ml', category: 'Beverages', stock_qty: 5, price: 2.50 },
-          { id: 2, name: 'Lays Chips', category: 'Snacks', stock_qty: 8, price: 1.99 },
-          { id: 3, name: 'Bread Loaf', category: 'Bakery', stock_qty: 3, price: 3.50 },
-          { id: 4, name: 'Milk 1L', category: 'Dairy', stock_qty: 7, price: 4.25 },
-          { id: 5, name: 'Eggs (12 pack)', category: 'Dairy', stock_qty: 4, price: 5.99 },
-        ]
-      };
-      setStats(mockStats);
-      // const response = await salesAPI.getDashboard();
-      // setStats(response.data);
+      const response = await salesAPI.getDashboard();
+      
+      if (response.data.success) {
+        setStats(response.data.data);
+      }
     } catch (error) {
       console.error('Failed to fetch dashboard stats:', error);
     } finally {
@@ -67,7 +56,7 @@ const Dashboard = () => {
           <div className="stat-content">
             <Text className="stat-label">Total Sales Today</Text>
             <Title level="H3" className="stat-value">
-              Rs. {stats?.total_sales?.toFixed(2) || '0.00'}
+              Rs. {parseFloat(stats?.total_sales || 0).toFixed(2)}
             </Title>
           </div>
         </div>
@@ -76,7 +65,7 @@ const Dashboard = () => {
           <div className="stat-content">
             <Text className="stat-label">Total Tax</Text>
             <Title level="H3" className="stat-value">
-              Rs. {stats?.total_tax?.toFixed(2) || '0.00'}
+              Rs. {parseFloat(stats?.total_tax || 0).toFixed(2)}
             </Title>
           </div>
         </div>

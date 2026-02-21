@@ -1,0 +1,185 @@
+.discount-setup-page {
+    padding: 24px;
+    background-color: #f5f5f5;
+    min-height: 100vh;
+}
+
+.discount-setup-page .page-header {
+    margin-bottom: 32px;
+}
+
+.discount-setup-page .page-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 8px;
+}
+
+.discount-setup-page .page-subtitle {
+    color: #666666;
+    font-size: 14px;
+}
+
+.discount-setup-page .search-section {
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
+.discount-setup-page .discount-table-container {
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 32px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.discount-setup-page table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.discount-setup-page th {
+    padding: 16px;
+    text-align: left;
+    font-weight: 600;
+    color: #1a1a1a;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.discount-setup-page td {
+    padding: 16px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.discount-setup-page .product-name {
+    color: #1a1a1a;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.discount-setup-page .discount-percent {
+    color: #2563eb;
+    font-size: 14px;
+    font-weight: 700;
+    text-align: center;
+}
+
+.discount-setup-page .date-cell {
+    color: #666666;
+    font-size: 14px;
+    text-align: center;
+}
+
+.discount-setup-page .status-badge {
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.discount-setup-page .status-active {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.discount-setup-page .status-inactive {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.discount-setup-page .action-buttons {
+    text-align: center;
+}
+
+.discount-setup-page .btn-edit {
+    padding: 6px 16px;
+    margin-right: 8px;
+    background: #f0f9ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 4px;
+    color: #2563eb;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.discount-setup-page .btn-delete {
+    padding: 6px 16px;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 4px;
+    color: #dc2626;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.discount-setup-page .no-data {
+    text-align: center;
+    padding: 40px;
+    color: #666666;
+}
+
+.discount-setup-page .form-group {
+    margin-bottom: 20px;
+}
+
+.discount-setup-page .form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #333;
+}
+
+.discount-setup-page .form-input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.discount-setup-page .form-select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    background: white;
+}
+
+.discount-setup-page .checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.discount-setup-page .dialog-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.discount-setup-page .btn-cancel {
+    background: #f1f1f1;
+    border: 1px solid #ddd;
+    color: #333;
+}
+
+.discount-setup-page .btn-submit {
+    background: #2563eb;
+    border: 1px solid #2563eb;
+    color: white;
+}

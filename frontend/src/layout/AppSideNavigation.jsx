@@ -9,8 +9,9 @@ const AppSideNavigation = () => {
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: '📊', path: '/dashboard' },
-    { id: 'pos', label: 'POS', icon: '🛒', path: '/pos' },
+    { id: 'discountsetup', label: 'Discount Setup', icon: '📦', path: '/discountsetup', adminOnly: true },
     { id: 'products', label: 'Products', icon: '📦', path: '/products', adminOnly: true },
+    { id: 'pos', label: 'POS', icon: '🛒', path: '/pos' },
     { id: 'sales', label: 'Sales', icon: '💰', path: '/sales' },
     { id: 'reports', label: 'Reports', icon: '📈', path: '/reports' },
     { id: 'users', label: 'Users', icon: '👥', path: '/users', adminOnly: true },

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Title,
   Button,
@@ -9,12 +9,16 @@ import {
   Select,
   Option,
   MessageStrip,
+  BusyIndicator,
 } from '@ui5/webcomponents-react';
 import { useAuthStore } from '../store/authStore';
+import { userAPI } from '../services/api';
 import './Users.css';
 
 const Users = () => {
   const { user: currentUser } = useAuthStore();
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
@@ -26,14 +30,24 @@ const Users = () => {
     role: 'cashier'
   });
 
-  // Mock users data
-  const mockUsers = [
-    { id: 1, name: 'Admin User', email: 'admin@pos.com', role: 'admin', created_at: '2026-01-15' },
-    { id: 2, name: 'John Doe', email: 'john@pos.com', role: 'cashier', created_at: '2026-02-01' },
-    { id: 3, name: 'Sarah Khan', email: 'sarah@pos.com', role: 'cashier', created_at: '2026-02-10' },
-  ];
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
-  const [users, setUsers] = useState(mockUsers);
+  const fetchUsers = async () => {
+    try {
+      const response = await userAPI.getAll();
+      
+      if (response.data.success) {
+        setUsers(response.data.data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch users:', error);
+      setMessage({ type: 'error', text: 'Failed to load users' });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleOpenDialog = () => {
     setEditMode(false);
@@ -56,18 +70,45 @@ const Users = () => {
       return;
     }
 
-    // Mock create user
-    setMessage({ type: 'success', text: 'User created successfully!' });
-    handleCloseDialog();
-    setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+    userAPI.create(formData)
+      .then((response) => {
+        if (response.data.success) {
+          setMessage({ type: 'success', text: 'User created successfully!' });
+          handleCloseDialog();
+          fetchUsers();
+          setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+        }
+      })
+      .catch((error) => {
+        console.error('Create user error:', error);
+        setMessage({ type: 'error', text: error.response?.data?.message || 'Failed to create user' });
+      });
   };
 
   const handleDelete = (id) => {
     if (window.confirm('Are you sure you want to delete this user?')) {
-      setMessage({ type: 'success', text: 'User deleted successfully!' });
-      setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+      userAPI.delete(id)
+        .then((response) => {
+          if (response.data.success) {
+            setMessage({ type: 'success', text: 'User deleted successfully!' });
+            fetchUsers();
+            setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+          }
+        })
+        .catch((error) => {
+          console.error('Delete user error:', error);
+          setMessage({ type: 'error', text: error.response?.data?.message || 'Failed to delete user' });
+        });
     }
   };
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
+        <BusyIndicator active />
+      </div>
+    );
+  }
 
   // Check if current user is admin
   if (currentUser?.role !== 'admin') {

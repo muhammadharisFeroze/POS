@@ -6,6 +6,7 @@ import {
   BusyIndicator,
   Dialog,
 } from '@ui5/webcomponents-react';
+import { salesAPI } from '../services/api';
 import './Sales.css';
 
 const Sales = () => {
@@ -14,64 +15,17 @@ const Sales = () => {
   const [selectedSale, setSelectedSale] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  // Mock sales data
-  const mockSales = [
-    {
-      id: 1,
-      invoice_no: 'INV-001',
-      datetime: '2026-02-21 09:30:00',
-      customer_name: 'Walk-in Customer',
-      subtotal: 650,
-      discount: 50,
-      tax: 30,
-      total: 630,
-      payment_method: 'cash',
-      cashier_name: 'Admin User',
-      items: [
-        { product_name: 'Coca Cola 500ml', quantity: 2, price: 150, discount: 0, tax: 15, total: 315 },
-        { product_name: 'Lays Chips', quantity: 3, price: 120, discount: 50, tax: 15, total: 315 }
-      ]
-    },
-    {
-      id: 2,
-      invoice_no: 'INV-002',
-      datetime: '2026-02-21 10:15:00',
-      customer_name: 'Ahmed Khan',
-      subtotal: 880,
-      discount: 0,
-      tax: 44,
-      total: 924,
-      payment_method: 'card',
-      cashier_name: 'Admin User',
-      items: [
-        { product_name: 'Milk 1L', quantity: 2, price: 280, discount: 0, tax: 28, total: 588 },
-        { product_name: 'Bread Loaf', quantity: 2, price: 180, discount: 0, tax: 18, total: 378 }
-      ]
-    },
-    {
-      id: 3,
-      invoice_no: 'INV-003',
-      datetime: '2026-02-21 11:45:00',
-      customer_name: 'Walk-in Customer',
-      subtotal: 420,
-      discount: 20,
-      tax: 20,
-      total: 420,
-      payment_method: 'cash',
-      cashier_name: 'Admin User',
-      items: [
-        { product_name: 'Eggs (12 pack)', quantity: 1, price: 420, discount: 20, tax: 20, total: 420 }
-      ]
-    }
-  ];
-
   useEffect(() => {
     fetchSales();
   }, []);
 
   const fetchSales = async () => {
     try {
-      setSales(mockSales);
+      const response = await salesAPI.getAll();
+      
+      if (response.data.sales) {
+        setSales(response.data.sales);
+      }
       setLoading(false);
     } catch (error) {
       console.error('Failed to fetch sales:', error);
@@ -79,9 +33,18 @@ const Sales = () => {
     }
   };
 
-  const handleViewInvoice = (sale) => {
-    setSelectedSale(sale);
-    setDialogOpen(true);
+  const handleViewInvoice = async (sale) => {
+    try {
+      // Fetch full sale details with items
+      const response = await salesAPI.getById(sale.id);
+      
+      if (response.data) {
+        setSelectedSale(response.data);
+        setDialogOpen(true);
+      }
+    } catch (error) {
+      console.error('Failed to fetch sale details:', error);
+    }
   };
 
   const handlePrint = () => {

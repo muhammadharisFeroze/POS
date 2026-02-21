@@ -8,6 +8,8 @@ const { createTables } = require('./models/schema');
 const authRoutes = require('./routes/authRoutes');
 const productRoutes = require('./routes/productRoutes');
 const salesRoutes = require('./routes/salesRoutes');
+const userRoutes = require('./routes/userRoutes');
+const discountRoutes = require('./routes/discountRoutes');
 
 const app = express();
 
@@ -20,6 +22,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/sales', salesRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/discounts', discountRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

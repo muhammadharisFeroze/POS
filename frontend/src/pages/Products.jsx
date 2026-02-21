@@ -10,6 +10,7 @@ import {
   Select,
   Option,
   MessageStrip,
+  CheckBox
 } from '@ui5/webcomponents-react';
 import { productAPI } from '../services/api';
 import './Products.css';
@@ -22,7 +23,7 @@ const Products = () => {
   const [editMode, setEditMode] = useState(false);
   const [currentProduct, setCurrentProduct] = useState(null);
   const [message, setMessage] = useState({ type: '', text: '' });
-  
+
   const [formData, setFormData] = useState({
     name: '',
     barcode: '',
@@ -30,6 +31,7 @@ const Products = () => {
     price: '',
     tax_percent: '',
     stock_qty: '',
+    unit: 'PCS',
     status: 'active'
   });
 
@@ -50,12 +52,14 @@ const Products = () => {
 
   const fetchProducts = async () => {
     try {
-      // Mock data
-      setProducts(mockProducts);
-      // const response = await productAPI.getAll();
-      // setProducts(response.data.products);
+      const response = await productAPI.getAll();
+
+      if (response.data.products) {
+        setProducts(response.data.products);
+      }
     } catch (error) {
       console.error('Failed to fetch products:', error);
+      setMessage({ type: 'error', text: 'Failed to load products' });
     } finally {
       setLoading(false);
     }
@@ -76,6 +80,7 @@ const Products = () => {
         price: '',
         tax_percent: '',
         stock_qty: '',
+        unit: 'PCS',
         status: 'active'
       });
     }
@@ -91,6 +96,7 @@ const Products = () => {
       price: '',
       tax_percent: '',
       stock_qty: '',
+      unit: 'PCS',
       status: 'active'
     });
   };
@@ -98,29 +104,31 @@ const Products = () => {
   const handleSubmit = async () => {
     try {
       if (editMode) {
-        // await productAPI.update(currentProduct.id, formData);
+        await productAPI.update(currentProduct.id, formData);
         setMessage({ type: 'success', text: 'Product updated successfully!' });
       } else {
-        // await productAPI.create(formData);
+        await productAPI.create(formData);
         setMessage({ type: 'success', text: 'Product created successfully!' });
       }
       handleCloseDialog();
       fetchProducts();
       setTimeout(() => setMessage({ type: '', text: '' }), 3000);
     } catch (error) {
-      setMessage({ type: 'error', text: 'Failed to save product' });
+      console.error('Save product error:', error);
+      setMessage({ type: 'error', text: error.response?.data?.message || 'Failed to save product' });
     }
   };
 
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
       try {
-        // await productAPI.delete(id);
+        await productAPI.delete(id);
         setMessage({ type: 'success', text: 'Product deleted successfully!' });
         fetchProducts();
         setTimeout(() => setMessage({ type: '', text: '' }), 3000);
       } catch (error) {
-        setMessage({ type: 'error', text: 'Failed to delete product' });
+        console.error('Delete product error:', error);
+        setMessage({ type: 'error', text: error.response?.data?.message || 'Failed to delete product' });
       }
     }
   };
@@ -262,7 +270,7 @@ const Products = () => {
             </tbody>
           </table>
         </div>
-        
+
         {filteredProducts.length === 0 && (
           <div style={{ textAlign: 'center', padding: '40px', color: '#666666' }}>
             No products found
@@ -277,17 +285,9 @@ const Products = () => {
         style={{ width: '500px' }}
       >
         <div style={{ padding: '20px' }}>
-          <div style={{ marginBottom: '16px' }}>
-            <Label required>Product Name</Label>
-            <Input
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              style={{ width: '100%', marginTop: '8px' }}
-            />
-          </div>
 
           <div style={{ marginBottom: '16px' }}>
-            <Label required>Barcode</Label>
+            <Label required>SKU Code</Label>
             <Input
               value={formData.barcode}
               onChange={(e) => setFormData({ ...formData, barcode: e.target.value })}
@@ -296,12 +296,37 @@ const Products = () => {
           </div>
 
           <div style={{ marginBottom: '16px' }}>
-            <Label required>Category</Label>
+            <Label required>Product Description</Label>
+            <Input
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              style={{ width: '100%', marginTop: '8px' }}
+            />
+          </div>
+
+
+
+          <div style={{ marginBottom: '16px' }}>
+            <Label>Category</Label>
             <Input
               value={formData.category}
               onChange={(e) => setFormData({ ...formData, category: e.target.value })}
               style={{ width: '100%', marginTop: '8px' }}
             />
+          </div>
+
+          <div style={{ marginBottom: '16px' }}>
+            <Label required>Unit</Label>
+            <Select
+              value={formData.unit}
+              onChange={(e) => setFormData({ ...formData, unit: e.detail.selectedOption.value })}
+              style={{ width: '100%', marginTop: '8px' }}
+            >
+              <Option value="PCS">PCS</Option>
+              <Option value="2PAC">2PAC</Option>
+              <Option value="4PAC">4PAC</Option>
+              <Option value="6PAC">6PAC</Option>
+            </Select>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
@@ -315,11 +340,11 @@ const Products = () => {
               />
             </div>
             <div>
-              <Label required>Tax %</Label>
+              <Label required>Stock Quantity</Label>
               <Input
                 type="number"
-                value={formData.tax_percent}
-                onChange={(e) => setFormData({ ...formData, tax_percent: e.target.value })}
+                value={formData.stock_qty}
+                onChange={(e) => setFormData({ ...formData, stock_qty: e.target.value })}
                 style={{ width: '100%', marginTop: '8px' }}
               />
             </div>
@@ -327,11 +352,11 @@ const Products = () => {
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
             <div>
-              <Label required>Stock Quantity</Label>
+              <Label>Tax %</Label>
               <Input
                 type="number"
-                value={formData.stock_qty}
-                onChange={(e) => setFormData({ ...formData, stock_qty: e.target.value })}
+                value={formData.tax_percent}
+                onChange={(e) => setFormData({ ...formData, tax_percent: e.target.value })}
                 style={{ width: '100%', marginTop: '8px' }}
               />
             </div>
@@ -345,6 +370,17 @@ const Products = () => {
                 <Option value="active">Active</Option>
                 <Option value="inactive">Inactive</Option>
               </Select>
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+
+            <div style={{ marginBottom: '20px' }}>
+              <CheckBox
+                checked={formData.active}
+                onChange={(e) => setFormData({ ...formData, active: e.target.checked })}
+                text="Active"
+              />
             </div>
           </div>
 
