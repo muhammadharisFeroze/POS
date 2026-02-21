@@ -147,11 +147,12 @@ class SalesService {
 
         const product = productResult.rows[0];
         const itemTotal = item.price * item.quantity;
-        const itemDiscount = item.discount || 0;
-        const itemTax = ((itemTotal - itemDiscount) * product.tax_percent) / 100;
+        const itemDiscountPerUnit = item.discount || 0;
+        const itemDiscountTotal = itemDiscountPerUnit * item.quantity;
+        const itemTax = ((itemTotal - itemDiscountTotal) * product.tax_percent) / 100;
 
         subtotal += itemTotal;
-        totalDiscount += itemDiscount;
+        totalDiscount += itemDiscountTotal;
         totalTax += itemTax;
       }
 
@@ -185,13 +186,14 @@ class SalesService {
       // Create sale items and update stock
       for (const item of items) {
         const itemTotal = item.price * item.quantity;
-        const itemDiscount = item.discount || 0;
-        const itemTax = ((itemTotal - itemDiscount) * item.tax_percent) / 100;
+        const itemDiscountPerUnit = item.discount || 0;
+        const itemDiscountTotal = itemDiscountPerUnit * item.quantity;
+        const itemTax = ((itemTotal - itemDiscountTotal) * item.tax_percent) / 100;
         
         await client.query(
           `INSERT INTO sale_items (sale_id, product_id, quantity, price, discount, tax, total)
            VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-          [sale.id, item.product_id, item.quantity, item.price, itemDiscount, itemTax, itemTotal - itemDiscount + itemTax]
+          [sale.id, item.product_id, item.quantity, item.price, itemDiscountTotal, itemTax, itemTotal - itemDiscountTotal + itemTax]
         );
 
         // Update product stock

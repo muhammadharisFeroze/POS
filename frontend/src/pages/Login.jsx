@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Input } from '@ui5/webcomponents-react';
 import { useAuthStore } from '../store/authStore';
+import { authAPI } from '../services/api';
 import './Login.css';
 
 const Login = () => {
@@ -12,7 +13,11 @@ const Login = () => {
   const navigate = useNavigate();
   const { setAuth } = useAuthStore();
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    if (e) {
+      e.preventDefault();
+    }
+    
     setError('');
     setLoading(true);
 
@@ -37,7 +42,8 @@ const Login = () => {
 
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
-      handleSubmit();
+      e.preventDefault();
+      handleSubmit(e);
     }
   };
 
@@ -82,7 +88,7 @@ const Login = () => {
             </div>
           )}
 
-          <div className="login-form">
+          <form className="login-form" onSubmit={handleSubmit}>
             <div className="form-group">
               <label className="form-label">Email Address</label>
               <Input
@@ -112,10 +118,11 @@ const Login = () => {
               onClick={handleSubmit}
               disabled={loading}
               className="login-button"
+              type="button"
             >
               {loading ? 'Signing in...' : 'Sign In'}
             </Button>
-          </div>
+          </form>
 
           <div className="login-footer">
             <p className="footer-text">© 2026 Feroze 1888 Mills. All rights reserved.</p>

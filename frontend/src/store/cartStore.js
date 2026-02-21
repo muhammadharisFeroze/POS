@@ -15,7 +15,7 @@ export const useCartStore = create((set) => ({
         )
       };
     }
-    return { cart: [...state.cart, { ...product, quantity: 1, discount: 0 }] };
+    return { cart: [...state.cart, { ...product, quantity: 1, discount: 0, discountPercent: 0 }] };
   }),
   
   updateQuantity: (productId, quantity) => set((state) => ({
@@ -24,9 +24,9 @@ export const useCartStore = create((set) => ({
     )
   })),
   
-  updateDiscount: (productId, discount) => set((state) => ({
+  updateDiscount: (productId, discount, discountPercent = 0) => set((state) => ({
     cart: state.cart.map(item =>
-      item.id === productId ? { ...item, discount } : item
+      item.id === productId ? { ...item, discount, discountPercent } : item
     )
   })),
   

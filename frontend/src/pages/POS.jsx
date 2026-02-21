@@ -68,9 +68,10 @@ const POS = () => {
     // Check if product has an active discount
     const discount = activeDiscounts[product.id];
     if (discount) {
-      // Calculate discount amount
-      const discountAmount = (product.price * parseFloat(discount.discount_percent)) / 100;
-      updateDiscount(product.id, discountAmount);
+      // Calculate discount amount per unit
+      const discountPercent = parseFloat(discount.discount_percent);
+      const discountAmount = (product.price * discountPercent) / 100;
+      updateDiscount(product.id, discountAmount, discountPercent);
     }
   };
 
@@ -226,6 +227,7 @@ const POS = () => {
                 cart.map((item) => {
                   const discount = activeDiscounts[item.id];
                   const hasDiscount = item.discount > 0;
+                  const discountPercent = item.discountPercent || (discount ? discount.discount_percent : 0);
                   
                   return (
                     <div key={item.id} className="cart-item">
@@ -233,7 +235,7 @@ const POS = () => {
                         <div className="item-details">
                           <div className="item-name">
                             {item.name}
-                            {hasDiscount && discount && (
+                            {hasDiscount && discountPercent > 0 && (
                               <span style={{ 
                                 marginLeft: '8px',
                                 fontSize: '11px',
@@ -243,7 +245,7 @@ const POS = () => {
                                 borderRadius: '3px',
                                 fontWeight: '600'
                               }}>
-                                -{discount.discount_percent}% OFF
+                                -{discountPercent}% OFF
                               </span>
                             )}
                           </div>

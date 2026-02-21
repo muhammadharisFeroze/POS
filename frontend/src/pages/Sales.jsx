@@ -7,6 +7,7 @@ import {
   Dialog,
 } from '@ui5/webcomponents-react';
 import { salesAPI } from '../services/api';
+import { generateThermalReceipt } from '../utils/receiptPrinter';
 import './Sales.css';
 
 const Sales = () => {
@@ -23,8 +24,8 @@ const Sales = () => {
     try {
       const response = await salesAPI.getAll();
       
-      if (response.data.sales) {
-        setSales(response.data.sales);
+      if (response.data.success && response.data.data) {
+        setSales(response.data.data.sales || []);
       }
       setLoading(false);
     } catch (error) {
@@ -38,8 +39,8 @@ const Sales = () => {
       // Fetch full sale details with items
       const response = await salesAPI.getById(sale.id);
       
-      if (response.data) {
-        setSelectedSale(response.data);
+      if (response.data.success && response.data.data) {
+        setSelectedSale(response.data.data);
         setDialogOpen(true);
       }
     } catch (error) {
@@ -48,7 +49,14 @@ const Sales = () => {
   };
 
   const handlePrint = () => {
-    window.print();
+    if (selectedSale) {
+      // Format data for thermal receipt printer
+      const receiptData = {
+        sale: selectedSale,
+        items: selectedSale.items || []
+      };
+      generateThermalReceipt(receiptData);
+    }
   };
 
   if (loading) {
@@ -91,9 +99,17 @@ const Sales = () => {
               {sales.map((sale, index) => (
                 <tr key={sale.id} style={{ borderBottom: index < sales.length - 1 ? '1px solid #f0f0f0' : 'none' }}>
                   <td style={{ padding: '16px', color: '#2563eb', fontSize: '14px', fontWeight: '600', fontFamily: 'monospace' }}>{sale.invoice_no}</td>
-                  <td style={{ padding: '16px', color: '#666666', fontSize: '14px' }}>{sale.datetime}</td>
+                  <td style={{ padding: '16px', color: '#666666', fontSize: '14px' }}>
+                    {new Date(sale.datetime).toLocaleString('en-US', { 
+                      year: 'numeric', 
+                      month: 'short', 
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                  </td>
                   <td style={{ padding: '16px', color: '#1a1a1a', fontSize: '14px', fontWeight: '500' }}>{sale.customer_name}</td>
-                  <td style={{ padding: '16px', color: '#1a1a1a', fontSize: '14px', fontWeight: '700', textAlign: 'right' }}>Rs. {sale.total}</td>
+                  <td style={{ padding: '16px', color: '#1a1a1a', fontSize: '14px', fontWeight: '700', textAlign: 'right' }}>Rs. {parseFloat(sale.total || 0).toFixed(2)}</td>
                   <td style={{ padding: '16px', textAlign: 'center' }}>
                     <span style={{
                       padding: '4px 12px',
@@ -153,7 +169,15 @@ const Sales = () => {
                 </div>
                 <div>
                   <Text style={{ fontSize: '12px', color: '#666666', display: 'block' }}>Date & Time:</Text>
-                  <Text style={{ fontWeight: '600' }}>{selectedSale.datetime}</Text>
+                  <Text style={{ fontWeight: '600' }}>
+                    {new Date(selectedSale.datetime).toLocaleString('en-US', { 
+                      year: 'numeric', 
+                      month: 'short', 
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                  </Text>
                 </div>
                 <div>
                   <Text style={{ fontSize: '12px', color: '#666666', display: 'block' }}>Cashier:</Text>
@@ -177,12 +201,12 @@ const Sales = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {selectedSale.items.map((item, index) => (
+                  {selectedSale.items && selectedSale.items.map((item, index) => (
                     <tr key={index} style={{ borderBottom: '1px solid #f0f0f0' }}>
                       <td style={{ padding: '12px' }}>{item.product_name}</td>
                       <td style={{ padding: '12px', textAlign: 'center' }}>{item.quantity}</td>
-                      <td style={{ padding: '12px', textAlign: 'right' }}>Rs. {item.price}</td>
-                      <td style={{ padding: '12px', textAlign: 'right', fontWeight: '600' }}>Rs. {item.total}</td>
+                      <td style={{ padding: '12px', textAlign: 'right' }}>Rs. {parseFloat(item.price || 0).toFixed(2)}</td>
+                      <td style={{ padding: '12px', textAlign: 'right', fontWeight: '600' }}>Rs. {parseFloat(item.total || 0).toFixed(2)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -192,26 +216,26 @@ const Sales = () => {
             <div style={{ borderTop: '2px solid #e0e0e0', paddingTop: '16px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
                 <Text>Subtotal:</Text>
-                <Text style={{ fontWeight: '600' }}>Rs. {selectedSale.subtotal}</Text>
+                <Text style={{ fontWeight: '600' }}>Rs. {parseFloat(selectedSale.subtotal || 0).toFixed(2)}</Text>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
                 <Text>Discount:</Text>
-                <Text style={{ fontWeight: '600' }}>Rs. {selectedSale.discount}</Text>
+                <Text style={{ fontWeight: '600' }}>Rs. {parseFloat(selectedSale.discount || 0).toFixed(2)}</Text>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
                 <Text>Tax:</Text>
-                <Text style={{ fontWeight: '600' }}>Rs. {selectedSale.tax}</Text>
+                <Text style={{ fontWeight: '600' }}>Rs. {parseFloat(selectedSale.tax || 0).toFixed(2)}</Text>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '16px', borderTop: '2px solid #e0e0e0' }}>
                 <Text style={{ fontSize: '18px', fontWeight: '700' }}>Grand Total:</Text>
-                <Text style={{ fontSize: '24px', fontWeight: '700', color: '#2563eb' }}>Rs. {selectedSale.total}</Text>
+                <Text style={{ fontSize: '24px', fontWeight: '700', color: '#2563eb' }}>Rs. {parseFloat(selectedSale.total || 0).toFixed(2)}</Text>
               </div>
             </div>
 
             <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
               <Button onClick={() => setDialogOpen(false)}>Close</Button>
               <Button design="Emphasized" onClick={handlePrint} style={{ background: '#2563eb' }}>
-                Print Invoice
+                Print Thermal Receipt
               </Button>
             </div>
           </div>
