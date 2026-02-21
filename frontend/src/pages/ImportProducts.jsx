@@ -10,6 +10,8 @@ import {
 import { useAuthStore } from '../store/authStore';
 import './ImportProducts.css';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+
 const ImportProducts = () => {
     const { token } = useAuthStore();
     const [file, setFile] = useState(null);
@@ -85,7 +87,7 @@ const ImportProducts = () => {
             console.log('Token available:', !!token);
             console.log('Sending data:', previewData.length, 'rows');
 
-            const response = await fetch('http://localhost:5000/api/products/import', {
+            const response = await fetch(`${API_BASE_URL}/products/import`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
