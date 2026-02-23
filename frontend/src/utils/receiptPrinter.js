@@ -152,6 +152,28 @@ export const generateThermalReceipt = (saleData) => {
           margin: 10px 0;
         }
         
+        .terms-section {
+          margin-top: 15px;
+          padding-top: 10px;
+          border-top: 1px dashed #000;
+          font-size: 9px;
+          text-align: center;
+          line-height: 1.6;
+        }
+        
+        .terms-title {
+          font-size: 11px;
+          font-weight: bold;
+          margin-bottom: 8px;
+          text-decoration: underline;
+        }
+        
+        .terms-text {
+          text-align: left;
+          margin: 5px 10px;
+          line-height: 1.5;
+        }
+        
         @media print {
           body {
             width: 80mm;
@@ -168,7 +190,7 @@ export const generateThermalReceipt = (saleData) => {
       <div class="receipt">
         <div class="header">
           <div class="logo-container">
-            <img src="${logoImage}" alt="Feroze 1888 Mills" class="logo" />
+            <img src="${logoImage}" alt="Feroze1888 Mills LTD" class="logo" />
           </div>
           <div class="store-name">Feroze 1888 Mills</div>
           <div class="store-info">
@@ -243,8 +265,21 @@ export const generateThermalReceipt = (saleData) => {
         <div class="footer">
           <div class="thank-you">THANK YOU!</div>
           <div>Visit Again</div>
-          <div style="margin-top: 8px; font-weight: bold;">Feroze 1888 Mills</div>
-          <div style="margin-top: 5px;">Powered by Feroze 1888 Mills</div>
+          
+          <div class="terms-section">
+            <div class="terms-title">TERMS & CONDITIONS</div>
+            <div class="terms-text">
+              • All sales are final. No exchange<br>
+              &nbsp;&nbsp;or return policy.<br><br>
+              • This receipt is proof of payment.<br>
+              &nbsp;&nbsp;Please keep for your records.<br><br>
+              • Prices are inclusive of all<br>
+              &nbsp;&nbsp;applicable taxes.
+            </div>
+          </div>
+          
+          <div style="margin-top: 15px; font-weight: bold; border-top: 1px dashed #000; padding-top: 10px;">Feroze 1888 Mills</div>
+          <div style="margin-top: 5px; font-size: 9px;">Powered by Feroze 1888 Mills</div>
         </div>
       </div>
     </body>
