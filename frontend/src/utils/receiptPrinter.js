@@ -3,7 +3,7 @@
  * Generates a thermal-style receipt PDF (80mm width)
  */
 
-import logoImage from '../assets/Feroze-1888.png';
+import logoImage from '../assets/FML2.png';
 
 export const generateThermalReceipt = (saleData) => {
   // Thermal receipt width: 80mm = ~302px at 96 DPI

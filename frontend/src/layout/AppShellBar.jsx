@@ -1,7 +1,7 @@
 import { ShellBar, Avatar } from '@ui5/webcomponents-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
-import logo from '../assets/Feroze-1888.png';
+import logo from '../assets/FML2.png';
 
 const AppShellBar = () => {
   const navigate = useNavigate();

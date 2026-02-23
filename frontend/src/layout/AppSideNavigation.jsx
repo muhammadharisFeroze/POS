@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
-import logo from '../assets/Feroze-1888.png';
+import logo from '../assets/FML2.png';
 import './AppSideNavigation.css';
 
 const AppSideNavigation = ({ isCollapsed, onToggle }) => {
