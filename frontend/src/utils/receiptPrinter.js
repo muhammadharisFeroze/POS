@@ -207,23 +207,17 @@ export const generateThermalReceipt = (saleData) => {
           ${items.map(item => {
             const itemSubtotal = parseFloat(item.price) * parseInt(item.quantity);
             const itemDiscount = parseFloat(item.discount || 0);
-            const itemTax = parseFloat(item.tax || 0);
             
             return `
             <div style="margin-bottom: 8px;">
               <div class="item-row">
                 <span class="item-name">${item.product_name || item.name}</span>
-                <span><strong>Rs. ${(itemSubtotal - itemDiscount + itemTax).toFixed(2)}</strong></span>
+                <span><strong>Rs. ${(itemSubtotal - itemDiscount).toFixed(2)}</strong></span>
               </div>
               <div class="item-details">
                 <span class="item-qty">${item.quantity} x Rs. ${parseFloat(item.price).toFixed(2)}</span>
                 ${itemDiscount > 0 ? `<span style="color: #dc2626;">-Rs. ${itemDiscount.toFixed(2)}</span>` : ''}
               </div>
-              ${itemTax > 0 ? `
-                <div class="item-details">
-                  <span style="color: #16a34a;">Tax: Rs. ${itemTax.toFixed(2)}</span>
-                </div>
-              ` : ''}
             </div>
             `;
           }).join('')}
@@ -240,10 +234,6 @@ export const generateThermalReceipt = (saleData) => {
               <span>-Rs. ${parseFloat(sale.discount).toFixed(2)}</span>
             </div>
           ` : ''}
-          <div class="summary-row">
-            <span>Tax:</span>
-            <span>Rs. ${parseFloat(sale.tax).toFixed(2)}</span>
-          </div>
           <div class="summary-row total">
             <span>TOTAL:</span>
             <span>Rs. ${parseFloat(sale.total).toFixed(2)}</span>
