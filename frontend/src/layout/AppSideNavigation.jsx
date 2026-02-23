@@ -1,9 +1,10 @@
+import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import logo from '../assets/Feroze-1888.png';
 import './AppSideNavigation.css';
 
-const AppSideNavigation = () => {
+const AppSideNavigation = ({ isCollapsed, onToggle }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuthStore();
@@ -24,11 +25,15 @@ const AppSideNavigation = () => {
   };
 
   return (
-    <div className="sidebar">
+    <div className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
       {/* Logo Section */}
       {/* <div className="sidebar-logo" onClick={() => navigate('/dashboard')}>
         <img src={logo} alt="Feroze 1888 Mills" className="logo-image" />
       </div> */}
+      
+      <button className="sidebar-toggle" onClick={onToggle} title={isCollapsed ? 'Expand Menu' : 'Collapse Menu'}>
+        {isCollapsed ? '»' : '«'}
+      </button>
       
       <div className="sidebar-menu">
         {menuItems.map((item) => {
@@ -43,9 +48,10 @@ const AppSideNavigation = () => {
               key={item.id}
               className={`menu-item ${isActive ? 'active' : ''}`}
               onClick={() => handleNavigation(item.path)}
+              title={item.label}
             >
               <span className="menu-icon">{item.icon}</span>
-              <span className="menu-label">{item.label}</span>
+              {!isCollapsed && <span className="menu-label">{item.label}</span>}
             </div>
           );
         })}

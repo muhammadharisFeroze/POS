@@ -34,7 +34,7 @@ const AppRoutes = () => {
   }, [showLoading, hideLoading]);
 
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/pos">
       <Routes>
         <Route path="/login" element={<Login />} />
         

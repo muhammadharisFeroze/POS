@@ -185,14 +185,21 @@ class SalesService {
       const today = date.toISOString().split('T')[0];
       
       // Get today's sales summary
-      const salesResult = await pool.query(
+      const todaySalesResult = await pool.query(
         `SELECT 
-           COALESCE(SUM(total), 0) as total_sales,
+           COALESCE(SUM(total), 0) as today_sales,
            COALESCE(SUM(tax), 0) as total_tax,
            COUNT(*) as total_transactions
          FROM sales 
          WHERE datetime::date = $1`,
         [today]
+      );
+
+      // Get all-time total sales
+      const allTimeSalesResult = await pool.query(
+        `SELECT 
+           COALESCE(SUM(total), 0) as total_sales
+         FROM sales`
       );
 
       // Get low stock products
@@ -205,7 +212,10 @@ class SalesService {
       );
 
       return {
-        ...salesResult.rows[0],
+        total_sales: allTimeSalesResult.rows[0].total_sales,
+        today_sales: todaySalesResult.rows[0].today_sales,
+        total_tax: todaySalesResult.rows[0].total_tax,
+        total_transactions: todaySalesResult.rows[0].total_transactions,
         low_stock_products: lowStockResult.rows
       };
     } catch (error) {

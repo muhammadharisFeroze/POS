@@ -22,14 +22,14 @@ const AppShellBar = () => {
 
   return (
     <div style={{
-      background: 'linear-gradient(135deg, #0066cc 0%, #0052a3 100%)',
-      borderBottom: '1px solid #0052a3',
+      background: 'linear-gradient(135deg, #1e88e5 0%, #1565c0 100%)',
+      borderBottom: '3px solid #0d47a1',
       padding: '0 20px',
       height: '61px',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
-      boxShadow: '0 2px 4px rgba(0, 102, 204, 0.15)'
+      boxShadow: '0 4px 12px rgba(30, 136, 229, 0.4)'
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
         <div style={{

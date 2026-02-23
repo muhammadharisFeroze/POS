@@ -155,12 +155,28 @@ const POS = () => {
         {/* Left Panel - Products Grid */}
         <div className="pos-left">
           <div className="search-section">
-            <Input
-              placeholder="🔍 Search products by name or scan barcode..."
-              value={searchTerm}
-              onInput={(e) => setSearchTerm(e.target.value)}
-              style={{ width: '100%', fontSize: '16px', padding: '12px' }}
-            />
+            <div style={{ position: 'relative', width: '100%' }}>
+              <span style={{
+                position: 'absolute',
+                left: '12px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                fontSize: '18px',
+                pointerEvents: 'none',
+                zIndex: 1
+              }}>🔍</span>
+              <Input
+                placeholder="Search products by name or scan barcode..."
+                value={searchTerm}
+                onInput={(e) => setSearchTerm(e.target.value)}
+                style={{ 
+                  width: '100%', 
+                  fontSize: '14px',
+                  paddingLeft: '40px',
+                  height: '44px'
+                }}
+              />
+            </div>
           </div>
 
           <div className="products-grid">
@@ -212,7 +228,7 @@ const POS = () => {
                         </span>
                       )}
                     </div>
-                    <div className="product-stock">Stock: {product.stock_qty}</div>
+                    {/* <div className="product-stock">Stock: {product.stock_qty}</div> */}
                   </div>
                   <div className="add-btn">+</div>
                 </div>

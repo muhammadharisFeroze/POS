@@ -6,26 +6,84 @@ import {
   Text,
   BusyIndicator,
 } from '@ui5/webcomponents-react';
+import {
+  BarChart,
+  Bar,
+  LineChart,
+  Line,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from 'recharts';
 import { salesAPI } from '../services/api';
 import './Dashboard.css';
 
 const Dashboard = () => {
   const [stats, setStats] = useState(null);
+  const [dailySalesData, setDailySalesData] = useState([]);
+  const [userWiseData, setUserWiseData] = useState([]);
+  const [productWiseData, setProductWiseData] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const COLORS = ['#0066cc', '#00b0ff', '#00c853', '#ff6f00', '#d50000', '#aa00ff', '#ffab00', '#00bfa5'];
+
   useEffect(() => {
-    fetchDashboardStats();
+    fetchAllDashboardData();
   }, []);
 
-  const fetchDashboardStats = async () => {
+  const fetchAllDashboardData = async () => {
     try {
-      const response = await salesAPI.getDashboard();
+      // Get today's date and last 7 days
+      const today = new Date();
+      const last7Days = new Date(today);
+      last7Days.setDate(last7Days.getDate() - 6);
+      const last30Days = new Date(today);
+      last30Days.setDate(last30Days.getDate() - 29);
+
+      const formatDate = (date) => date.toISOString().split('T')[0];
+
+      // Fetch all data in parallel
+      const [dashboardRes, dailyRes, userWiseRes, productWiseRes] = await Promise.all([
+        salesAPI.getDashboard(),
+        salesAPI.getDailyReport({ start_date: formatDate(last7Days), end_date: formatDate(today) }),
+        salesAPI.getUserWiseReport({ start_date: formatDate(last30Days), end_date: formatDate(today) }),
+        salesAPI.getProductWiseReport({ start_date: formatDate(last30Days), end_date: formatDate(today) }),
+      ]);
       
-      if (response.data.success) {
-        setStats(response.data.data);
+      if (dashboardRes.data.success) {
+        setStats(dashboardRes.data.data);
+      }
+
+      if (dailyRes.data.success) {
+        const chartData = dailyRes.data.data.map(item => ({
+          date: new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+          sales: parseFloat(item.total || 0),
+          transactions: parseInt(item.transactions || 0),
+        }));
+        setDailySalesData(chartData.reverse());
+      }
+
+      if (userWiseRes.data.success) {
+        const userData = userWiseRes.data.data.map(item => ({
+          name: item.user_name,
+          transactions: parseInt(item.transaction_count || 0),
+          sales: parseFloat(item.total_sales || 0),
+          role: item.role,
+        }));
+        setUserWiseData(userData);
+      }
+
+      if (productWiseRes.data.success) {
+        setProductWiseData(productWiseRes.data.data.slice(0, 10));
       }
     } catch (error) {
-      console.error('Failed to fetch dashboard stats:', error);
+      console.error('Failed to fetch dashboard data:', error);
     } finally {
       setLoading(false);
     }
@@ -39,83 +97,214 @@ const Dashboard = () => {
     );
   }
 
+  const highestProduct = productWiseData[0];
+
   return (
     <div className="dashboard-page">
-      <div style={{ marginBottom: '40px' }}>
-        <Title level="H2" style={{ fontSize: '28px', fontWeight: '700', color: '#1a1a1a', marginBottom: '8px' }}>Dashboard</Title>
-        <Text style={{ color: '#666666', fontSize: '14px' }}>Overview of your store performance</Text>
+      {/* Header */}
+      <div style={{ marginBottom: '32px' }}>
+        <Title level="H2" style={{ fontSize: '32px', fontWeight: '700', color: '#1a1a1a', marginBottom: '8px' }}>
+          📊 Dashboard
+        </Title>
+        <Text style={{ color: '#666666', fontSize: '14px' }}>Welcome back! Here's what's happening with your store today.</Text>
       </div>
 
-      <FlexBox
-        justifyContent="Start"
-        alignItems="Stretch"
-        wrap="Wrap"
-        style={{ gap: '24px', marginBottom: '40px' }}
-      >
-        <div className="stat-card">
-          <div className="stat-content">
-            <Text className="stat-label">Total Sales Today</Text>
-            <Title level="H3" className="stat-value">
-              Rs. {parseFloat(stats?.total_sales || 0).toFixed(2)}
+      {/* Stats Cards */}
+      <div className="stats-grid">
+        <div className="stat-card-modern primary">
+          <div className="stat-icon">💰</div>
+          <div className="stat-details">
+            <Text className="stat-label-modern">Total Sales</Text>
+            <Title level="H3" className="stat-value-modern">
+              Rs. {parseFloat(stats?.total_sales || 0).toLocaleString('en-PK', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </Title>
+            <Text className="stat-subtitle">All time revenue</Text>
           </div>
         </div>
 
-        <div className="stat-card">
-          <div className="stat-content">
-            <Text className="stat-label">Total Tax</Text>
-            <Title level="H3" className="stat-value">
-              Rs. {parseFloat(stats?.total_tax || 0).toFixed(2)}
+        <div className="stat-card-modern success">
+          <div className="stat-icon">📅</div>
+          <div className="stat-details">
+            <Text className="stat-label-modern">Today's Sales</Text>
+            <Title level="H3" className="stat-value-modern">
+              Rs. {parseFloat(stats?.today_sales || 0).toLocaleString('en-PK', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </Title>
+            <Text className="stat-subtitle">{stats?.total_transactions || 0} transactions</Text>
           </div>
         </div>
 
-        <div className="stat-card">
-          <div className="stat-content">
-            <Text className="stat-label">Total Transactions</Text>
-            <Title level="H3" className="stat-value">
-              {stats?.total_transactions || 0}
+        <div className="stat-card-modern warning">
+          <div className="stat-icon">📦</div>
+          <div className="stat-details">
+            <Text className="stat-label-modern">Top Product</Text>
+            <Title level="H4" className="stat-value-modern" style={{ fontSize: '18px' }}>
+              {highestProduct?.product || 'N/A'}
             </Title>
+            <Text className="stat-subtitle">
+              {highestProduct ? `${highestProduct.quantity} units sold` : 'No data'}
+            </Text>
           </div>
         </div>
-      </FlexBox>
+      </div>
 
-      <div style={{
-        background: '#ffffff',
-        border: '1px solid #e0e0e0',
-        borderRadius: '8px',
-        padding: '32px',
-        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.06)'
-      }}>
-        <Title level="H4" style={{ fontSize: '18px', fontWeight: '600', color: '#1a1a1a', marginBottom: '24px' }}>Low Stock Alert</Title>
-        {stats?.low_stock_products?.length > 0 ? (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 0 }}>
-              <thead>
-                <tr style={{ borderBottom: '2px solid #e0e0e0' }}>
-                  <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '600', color: 'var(--text-primary)', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Product Name</th>
-                  <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '600', color: 'var(--text-primary)', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Category</th>
-                  <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '600', color: 'var(--text-primary)', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Stock Quantity</th>
-                  <th style={{ padding: '10px 12px', textAlign: 'right', fontWeight: '600', color: 'var(--text-primary)', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Price</th>
-                </tr>
-              </thead>
-              <tbody>
-                {stats.low_stock_products.map((product, index) => (
-                  <tr key={product.id} style={{ borderBottom: index < stats.low_stock_products.length - 1 ? '1px solid #f0f0f0' : 'none' }}>
-                    <td style={{ padding: '10px 12px', color: 'var(--text-primary)', fontSize: '12px', fontWeight: '500' }}>{product.name}</td>
-                    <td style={{ padding: '10px 12px', color: 'var(--text-secondary)', fontSize: '12px' }}>{product.category}</td>
-                    <td style={{ padding: '10px 12px', color: product.stock_qty < 5 ? 'var(--error)' : 'var(--warning)', fontSize: '12px', fontWeight: '700' }}>
-                      {product.stock_qty}
+      {/* Charts Section */}
+      <div className="charts-grid">
+        {/* Daily Sales Chart */}
+        <div className="chart-card">
+          <div className="chart-header">
+            <div>
+              <Title level="H4" className="chart-title">📈 Daily Sales Trend</Title>
+              <Text className="chart-subtitle">Last 7 days performance</Text>
+            </div>
+          </div>
+          <div className="chart-container">
+            <ResponsiveContainer width="100%" height={280}>
+              <LineChart data={dailySalesData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis dataKey="date" stroke="#666" style={{ fontSize: '12px' }} />
+                <YAxis stroke="#666" style={{ fontSize: '12px' }} />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: '#fff', 
+                    border: '1px solid #e0e0e0', 
+                    borderRadius: '8px',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                  }} 
+                />
+                <Legend wrapperStyle={{ fontSize: '12px' }} />
+                <Line 
+                  type="monotone" 
+                  dataKey="sales" 
+                  stroke="#0066cc" 
+                  strokeWidth={3} 
+                  dot={{ fill: '#0066cc', r: 5 }} 
+                  activeDot={{ r: 7 }} 
+                  name="Sales (Rs)"
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* User-wise Transactions Chart */}
+        <div className="chart-card">
+          <div className="chart-header">
+            <div>
+              <Title level="H4" className="chart-title">👥 User Performance</Title>
+              <Text className="chart-subtitle">Transactions by user (Last 30 days)</Text>
+            </div>
+          </div>
+          <div className="chart-container">
+            <ResponsiveContainer width="100%" height={280}>
+              <BarChart data={userWiseData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis dataKey="name" stroke="#666" style={{ fontSize: '12px' }} />
+                <YAxis stroke="#666" style={{ fontSize: '12px' }} />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: '#fff', 
+                    border: '1px solid #e0e0e0', 
+                    borderRadius: '8px',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                  }} 
+                />
+                <Legend wrapperStyle={{ fontSize: '12px' }} />
+                <Bar dataKey="transactions" fill="#00c853" name="Transactions" radius={[8, 8, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+
+      {/* User-wise Sales Table */}
+      <div className="table-card">
+        <div className="table-header">
+          <div>
+            <Title level="H4" className="table-title">💼 User-wise Sales Report</Title>
+            <Text className="table-subtitle">Sales performance by team member (Last 30 days)</Text>
+          </div>
+        </div>
+        <div style={{ overflowX: 'auto' }}>
+          <table className="modern-table">
+            <thead>
+              <tr>
+                <th>User Name</th>
+                <th>Role</th>
+                <th>Transactions</th>
+                <th>Total Sales</th>
+              </tr>
+            </thead>
+            <tbody>
+              {userWiseData.length > 0 ? (
+                userWiseData.map((user, index) => (
+                  <tr key={index}>
+                    <td>
+                      <div className="user-cell">
+                        <div className="user-avatar">{user.name.charAt(0)}</div>
+                        <span className="user-name">{user.name}</span>
+                      </div>
                     </td>
-                    <td style={{ padding: '10px 12px', color: 'var(--text-primary)', fontSize: '12px', fontWeight: '600', textAlign: 'right' }}>Rs. {product.price}</td>
+                    <td>
+                      <span className={`role-badge ${user.role}`}>{user.role}</span>
+                    </td>
+                    <td className="number-cell">{user.transactions}</td>
+                    <td className="amount-cell">Rs. {user.sales.toLocaleString('en-PK', { minimumFractionDigits: 2 })}</td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="4" style={{ textAlign: 'center', padding: '32px', color: '#999' }}>
+                    No user data available
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Low Stock Alert */}
+      <div className="table-card">
+        <div className="table-header">
+          <div>
+            <Title level="H4" className="table-title">⚠️ Low Stock Alert</Title>
+            <Text className="table-subtitle">Products running low on inventory</Text>
           </div>
-        ) : (
-          <Text style={{ color: '#666666' }}>No low stock items</Text>
-        )}
+        </div>
+        <div style={{ overflowX: 'auto' }}>
+          <table className="modern-table">
+            <thead>
+              <tr>
+                <th>Product Name</th>
+                <th>Category</th>
+                <th>Stock Quantity</th>
+                <th>Price</th>
+              </tr>
+            </thead>
+            <tbody>
+              {stats?.low_stock_products?.length > 0 ? (
+                stats.low_stock_products.map((product, index) => (
+                  <tr key={product.id}>
+                    <td className="product-name">{product.name}</td>
+                    <td>{product.category}</td>
+                    <td>
+                      <span className={`stock-badge ${product.stock_qty < 5 ? 'critical' : 'warning'}`}>
+                        {product.stock_qty} units
+                      </span>
+                    </td>
+                    <td className="amount-cell">Rs. {parseFloat(product.price).toFixed(2)}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="4" style={{ textAlign: 'center', padding: '32px', color: '#999' }}>
+                    ✅ All products are well stocked
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

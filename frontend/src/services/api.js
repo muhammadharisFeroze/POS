@@ -57,9 +57,11 @@ api.interceptors.response.use(
       loadingCallbacks.hide();
     }
     
-    if (error.response?.status === 401) {
+    // Only redirect to login if user is authenticated and gets 401
+    // Don't redirect on login page itself (wrong credentials)
+    if (error.response?.status === 401 && error.config?.url !== '/auth/login') {
       useAuthStore.getState().logout();
-      window.location.href = '/login';
+      window.location.href = '/pos/login';
     }
     return Promise.reject(error);
   }
