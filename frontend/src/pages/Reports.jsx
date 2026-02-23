@@ -11,6 +11,9 @@ import {
   MessageStrip,
 } from '@ui5/webcomponents-react';
 import { salesAPI } from '../services/api';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
+import * as XLSX from 'xlsx';
 import './Reports.css';
 
 const Reports = () => {
@@ -57,8 +60,246 @@ const Reports = () => {
     }
   };
 
-  const handleExport = () => {
-    alert('Export to Excel functionality will be implemented with backend integration');
+  const exportToPDF = () => {
+    if (reportData.length === 0) {
+      alert('No data to export');
+      return;
+    }
+
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.width;
+    
+    // Add title
+    doc.setFontSize(18);
+    doc.setFont('helvetica', 'bold');
+    let reportTitle = '';
+    if (reportType === 'daily') reportTitle = 'Daily Sales Report';
+    else if (reportType === 'product') reportTitle = 'Product-wise Sales Report';
+    else if (reportType === 'userwise') reportTitle = 'User-wise Transaction Report';
+    else if (reportType === 'tax') reportTitle = 'Tax Report';
+    
+    doc.text(reportTitle, pageWidth / 2, 15, { align: 'center' });
+    
+    // Add date range
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Period: ${startDate} to ${endDate}`, pageWidth / 2, 22, { align: 'center' });
+    
+    // Prepare table data based on report type
+    let headers = [];
+    let rows = [];
+    let totalsRow = [];
+    
+    if (reportType === 'daily') {
+      headers = [['Date', 'Transactions', 'Subtotal (Rs.)', 'Tax (Rs.)', 'Total (Rs.)']];
+      rows = reportData.map(row => [
+        row.date,
+        row.transactions,
+        parseFloat(row.subtotal).toFixed(2),
+        parseFloat(row.tax).toFixed(2),
+        parseFloat(row.total).toFixed(2)
+      ]);
+      totalsRow = ['TOTAL',
+        reportData.reduce((sum, row) => sum + parseInt(row.transactions || 0), 0),
+        reportData.reduce((sum, row) => sum + parseFloat(row.subtotal || 0), 0).toFixed(2),
+        reportData.reduce((sum, row) => sum + parseFloat(row.tax || 0), 0).toFixed(2),
+        reportData.reduce((sum, row) => sum + parseFloat(row.total || 0), 0).toFixed(2)
+      ];
+    } else if (reportType === 'product') {
+      headers = [['Product Name', 'Category', 'Qty Sold', 'Revenue (Rs.)']];
+      rows = reportData.map(row => [
+        row.product || row.name,
+        row.category,
+        row.quantity || row.quantity_sold,
+        parseFloat(row.revenue || row.total_revenue).toFixed(2)
+      ]);
+      totalsRow = ['TOTAL', '',
+        reportData.reduce((sum, row) => sum + parseInt(row.quantity || row.quantity_sold || 0), 0),
+        reportData.reduce((sum, row) => sum + parseFloat(row.revenue || row.total_revenue || 0), 0).toFixed(2)
+      ];
+    } else if (reportType === 'userwise') {
+      headers = [['User Name', 'Role', 'Transactions', 'Cash Sales (Rs.)', 'Card Sales (Rs.)', 'Total Sales (Rs.)']];
+      rows = reportData.map(row => [
+        row.user_name,
+        row.role,
+        row.transaction_count,
+        parseFloat(row.cash_sales || 0).toFixed(2),
+        parseFloat(row.card_sales || 0).toFixed(2),
+        parseFloat(row.total_sales).toFixed(2)
+      ]);
+      totalsRow = ['TOTAL', '',
+        reportData.reduce((sum, row) => sum + parseInt(row.transaction_count || 0), 0),
+        reportData.reduce((sum, row) => sum + parseFloat(row.cash_sales || 0), 0).toFixed(2),
+        reportData.reduce((sum, row) => sum + parseFloat(row.card_sales || 0), 0).toFixed(2),
+        reportData.reduce((sum, row) => sum + parseFloat(row.total_sales || 0), 0).toFixed(2)
+      ];
+    } else if (reportType === 'tax') {
+      headers = [['Date', 'Subtotal (Rs.)', 'Tax Collected (Rs.)', 'Total (Rs.)']];
+      rows = reportData.map(row => [
+        row.date,
+        parseFloat(row.subtotal).toFixed(2),
+        parseFloat(row.tax || row.tax_collected).toFixed(2),
+        parseFloat(row.total).toFixed(2)
+      ]);
+      totalsRow = ['TOTAL',
+        reportData.reduce((sum, row) => sum + parseFloat(row.subtotal || 0), 0).toFixed(2),
+        reportData.reduce((sum, row) => sum + parseFloat(row.tax || row.tax_collected || 0), 0).toFixed(2),
+        reportData.reduce((sum, row) => sum + parseFloat(row.total || 0), 0).toFixed(2)
+      ];
+    }
+    
+    // Add totals row
+    rows.push(totalsRow);
+    
+    // Generate table
+    doc.autoTable({
+      head: headers,
+      body: rows,
+      startY: 28,
+      theme: 'grid',
+      headStyles: {
+        fillColor: [37, 99, 235],
+        textColor: 255,
+        fontStyle: 'bold'
+      },
+      footStyles: {
+        fillColor: [240, 240, 240],
+        textColor: 0,
+        fontStyle: 'bold'
+      },
+      didParseCell: function (data) {
+        // Make the last row (totals) bold
+        if (data.row.index === rows.length - 1) {
+          data.cell.styles.fontStyle = 'bold';
+          data.cell.styles.fillColor = [250, 250, 250];
+        }
+      }
+    });
+    
+    // Add footer
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.text(
+        `Generated on ${new Date().toLocaleString()} | Page ${i} of ${pageCount}`,
+        pageWidth / 2,
+        doc.internal.pageSize.height - 10,
+        { align: 'center' }
+      );
+    }
+    
+    // Save PDF
+    doc.save(`${reportTitle.replace(/ /g, '_')}_${startDate}_to_${endDate}.pdf`);
+  };
+
+  const exportToExcel = () => {
+    if (reportData.length === 0) {
+      alert('No data to export');
+      return;
+    }
+
+    let worksheetData = [];
+    let reportTitle = '';
+    
+    if (reportType === 'daily') {
+      reportTitle = 'Daily Sales Report';
+      worksheetData = [
+        ['Daily Sales Report'],
+        [`Period: ${startDate} to ${endDate}`],
+        [],
+        ['Date', 'Transactions', 'Subtotal (Rs.)', 'Tax (Rs.)', 'Total (Rs.)'],
+        ...reportData.map(row => [
+          row.date,
+          row.transactions,
+          parseFloat(row.subtotal).toFixed(2),
+          parseFloat(row.tax).toFixed(2),
+          parseFloat(row.total).toFixed(2)
+        ]),
+        [],
+        [
+          'TOTAL',
+          reportData.reduce((sum, row) => sum + parseInt(row.transactions || 0), 0),
+          reportData.reduce((sum, row) => sum + parseFloat(row.subtotal || 0), 0).toFixed(2),
+          reportData.reduce((sum, row) => sum + parseFloat(row.tax || 0), 0).toFixed(2),
+          reportData.reduce((sum, row) => sum + parseFloat(row.total || 0), 0).toFixed(2)
+        ]
+      ];
+    } else if (reportType === 'product') {
+      reportTitle = 'Product-wise Sales Report';
+      worksheetData = [
+        ['Product-wise Sales Report'],
+        [`Period: ${startDate} to ${endDate}`],
+        [],
+        ['Product Name', 'Category', 'Qty Sold', 'Revenue (Rs.)'],
+        ...reportData.map(row => [
+          row.product || row.name,
+          row.category,
+          row.quantity || row.quantity_sold,
+          parseFloat(row.revenue || row.total_revenue).toFixed(2)
+        ]),
+        [],
+        [
+          'TOTAL',
+          '',
+          reportData.reduce((sum, row) => sum + parseInt(row.quantity || row.quantity_sold || 0), 0),
+          reportData.reduce((sum, row) => sum + parseFloat(row.revenue || row.total_revenue || 0), 0).toFixed(2)
+        ]
+      ];
+    } else if (reportType === 'userwise') {
+      reportTitle = 'User-wise Transaction Report';
+      worksheetData = [
+        ['User-wise Transaction Report'],
+        [`Period: ${startDate} to ${endDate}`],
+        [],
+        ['User Name', 'Role', 'Transactions', 'Cash Sales (Rs.)', 'Card Sales (Rs.)', 'Total Sales (Rs.)'],
+        ...reportData.map(row => [
+          row.user_name,
+          row.role,
+          row.transaction_count,
+          parseFloat(row.cash_sales || 0).toFixed(2),
+          parseFloat(row.card_sales || 0).toFixed(2),
+          parseFloat(row.total_sales).toFixed(2)
+        ]),
+        [],
+        [
+          'TOTAL',
+          '',
+          reportData.reduce((sum, row) => sum + parseInt(row.transaction_count || 0), 0),
+          reportData.reduce((sum, row) => sum + parseFloat(row.cash_sales || 0), 0).toFixed(2),
+          reportData.reduce((sum, row) => sum + parseFloat(row.card_sales || 0), 0).toFixed(2),
+          reportData.reduce((sum, row) => sum + parseFloat(row.total_sales || 0), 0).toFixed(2)
+        ]
+      ];
+    } else if (reportType === 'tax') {
+      reportTitle = 'Tax Report';
+      worksheetData = [
+        ['Tax Report'],
+        [`Period: ${startDate} to ${endDate}`],
+        [],
+        ['Date', 'Subtotal (Rs.)', 'Tax Collected (Rs.)', 'Total (Rs.)'],
+        ...reportData.map(row => [
+          row.date,
+          parseFloat(row.subtotal).toFixed(2),
+          parseFloat(row.tax || row.tax_collected).toFixed(2),
+          parseFloat(row.total).toFixed(2)
+        ]),
+        [],
+        [
+          'TOTAL',
+          reportData.reduce((sum, row) => sum + parseFloat(row.subtotal || 0), 0).toFixed(2),
+          reportData.reduce((sum, row) => sum + parseFloat(row.tax || row.tax_collected || 0), 0).toFixed(2),
+          reportData.reduce((sum, row) => sum + parseFloat(row.total || 0), 0).toFixed(2)
+        ]
+      ];
+    }
+    
+    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, reportTitle.substring(0, 31));
+    
+    // Save Excel file
+    XLSX.writeFile(workbook, `${reportTitle.replace(/ /g, '_')}_${startDate}_to_${endDate}.xlsx`);
   };
 
   const renderDailySalesReport = () => (
@@ -307,9 +548,24 @@ const Reports = () => {
               style={{ width: '100%', marginTop: '8px' }}
             />
           </div>
-          {/* <Button design="Emphasized" onClick={handleExport} style={{ background: '#16a34a' }}>
-            Export to Excel
-          </Button> */}
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <Button 
+              design="Emphasized" 
+              onClick={exportToPDF} 
+              style={{ background: '#dc2626' }}
+              disabled={loading || reportData.length === 0}
+            >
+              Export to PDF
+            </Button>
+            <Button 
+              design="Emphasized" 
+              onClick={exportToExcel} 
+              style={{ background: '#16a34a' }}
+              disabled={loading || reportData.length === 0}
+            >
+              Export to Excel
+            </Button>
+          </div>
         </div>
       </div>
 
