@@ -192,7 +192,7 @@ export const generateThermalReceipt = (saleData) => {
           <div class="logo-container">
             <img src="${logoImage}" alt="Feroze1888 Mills LTD" class="logo" />
           </div>
-          <div class="store-name">Feroze 1888 Mills</div>
+          <div class="store-name">Feroze1888 Mills LTD</div>
           <div class="store-info">
             Point of Sale System<br>
             Phone: +92 XXX XXXXXXX<br>
@@ -278,8 +278,8 @@ export const generateThermalReceipt = (saleData) => {
             </div>
           </div>
           
-          <div style="margin-top: 15px; font-weight: bold; border-top: 1px dashed #000; padding-top: 10px;">Feroze 1888 Mills</div>
-          <div style="margin-top: 5px; font-size: 9px;">Powered by Feroze 1888 Mills</div>
+          <div style="margin-top: 15px; font-weight: bold; border-top: 1px dashed #000; padding-top: 10px;">Feroze1888 Mills LTD</div>
+          <div style="margin-top: 5px; font-size: 9px;">Powered by Feroze1888 Mills LTD</div>
         </div>
       </div>
     </body>
