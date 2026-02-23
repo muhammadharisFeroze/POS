@@ -77,10 +77,16 @@ const POS = () => {
     }
   };
 
-  const filteredProducts = products.filter(product =>
-    product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.barcode?.includes(searchTerm)
-  );
+  const filteredProducts = products
+    .filter(product =>
+      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.barcode?.includes(searchTerm)
+    )
+    .sort((a, b) => {
+      const skuA = a.barcode || '';
+      const skuB = b.barcode || '';
+      return skuA.localeCompare(skuB, undefined, { numeric: true, sensitivity: 'base' });
+    });
 
   const summary = getCartSummary();
 
@@ -212,7 +218,7 @@ const POS = () => {
                   </div>
                   <div className="product-info">
                     <div className="product-name">{product.name}</div>
-                    <div className="product-name">
+                    <div className="product-sku">
                       SKU: {product.barcode}
                     </div>
                     <div className="product-price">
