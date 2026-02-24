@@ -16,12 +16,12 @@ class SalesService {
 
       if (startDate) {
         params.push(startDate);
-        query += ` AND s.datetime >= $${params.length}::date`;
+        query += ` AND s.datetime::date >= $${params.length}::date`;
       }
 
       if (endDate) {
         params.push(endDate);
-        query += ` AND s.datetime <= $${params.length}::date + interval '1 day'`;
+        query += ` AND s.datetime::date <= $${params.length}::date`;
       }
 
       if (customerName) {

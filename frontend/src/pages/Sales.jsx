@@ -15,21 +15,33 @@ import { generateThermalReceipt } from '../utils/receiptPrinter';
 import './Sales.css';
 
 const Sales = () => {
+  // Get current date in YYYY-MM-DD format
+  const getCurrentDate = () => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  };
+
   const [sales, setSales] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedSale, setSelectedSale] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [fromDate, setFromDate] = useState(getCurrentDate());
+  const [toDate, setToDate] = useState(getCurrentDate());
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
   useEffect(() => {
     fetchSales();
-  }, []);
+  }, [fromDate, toDate]);
 
   const fetchSales = async () => {
+    setLoading(true);
     try {
-      const response = await salesAPI.getAll();
+      const response = await salesAPI.getAll({
+        startDate: fromDate,
+        endDate: toDate
+      });
       
       if (response.data.success && response.data.data) {
         setSales(response.data.data.sales || []);
@@ -99,10 +111,16 @@ const Sales = () => {
         <Title level="H2" style={{ fontSize: '28px', fontWeight: '700', color: '#1a1a1a', marginBottom: '8px' }}>
           Sales History
         </Title>
-        <Text style={{ color: '#666666', fontSize: '14px' }}>View all completed transactions</Text>
+        <Text style={{ color: '#666666', fontSize: '14px' }}>
+          {fromDate === toDate 
+            ? `Showing transactions for ${new Date(fromDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
+            : `Showing transactions from ${new Date(fromDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} to ${new Date(toDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
+          }
+          {' '} • {filteredSales.length} record{filteredSales.length !== 1 ? 's' : ''} found
+        </Text>
       </div>
 
-      {/* Search Bar */}
+      {/* Search and Filter Bar */}
       <div style={{
         background: '#ffffff',
         border: '1px solid #e0e0e0',
@@ -110,12 +128,47 @@ const Sales = () => {
         padding: '24px',
         marginBottom: '24px'
       }}>
-        <Input
-          placeholder="Search by invoice number, customer name, CNIC, or transaction ID..."
-          value={searchTerm}
-          onInput={(e) => setSearchTerm(e.target.value)}
-          style={{ width: '100%', maxWidth: '500px' }}
-        />
+        <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
+          <div style={{ flex: '1', minWidth: '300px' }}>
+            <Label style={{ fontSize: '13px', fontWeight: '600', color: '#666', marginBottom: '8px', display: 'block' }}>Search</Label>
+            <Input
+              placeholder="Search by invoice number, customer name, CNIC, or transaction ID..."
+              value={searchTerm}
+              onInput={(e) => setSearchTerm(e.target.value)}
+              style={{ width: '100%' }}
+            />
+          </div>
+          <div style={{ minWidth: '180px' }}>
+            <Label style={{ fontSize: '13px', fontWeight: '600', color: '#666', marginBottom: '8px', display: 'block' }}>From Date</Label>
+            <Input
+              type="date"
+              value={fromDate}
+              onInput={(e) => setFromDate(e.target.value)}
+              style={{ width: '100%' }}
+            />
+          </div>
+          <div style={{ minWidth: '180px' }}>
+            <Label style={{ fontSize: '13px', fontWeight: '600', color: '#666', marginBottom: '8px', display: 'block' }}>To Date</Label>
+            <Input
+              type="date"
+              value={toDate}
+              onInput={(e) => setToDate(e.target.value)}
+              style={{ width: '100%' }}
+            />
+          </div>
+          <div>
+            <Button
+              onClick={() => {
+                setFromDate(getCurrentDate());
+                setToDate(getCurrentDate());
+              }}
+              design="Transparent"
+              style={{ height: '44px' }}
+            >
+              Reset to Today
+            </Button>
+          </div>
+        </div>
       </div>
 
       <div style={{
