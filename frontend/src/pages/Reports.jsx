@@ -106,15 +106,19 @@ const Reports = () => {
         reportData.reduce((sum, row) => sum + parseFloat(row.total || 0), 0).toFixed(2)
       ];
     } else if (reportType === 'product') {
-      headers = [['Product Name', 'Category', 'Qty Sold', 'Revenue (Rs.)']];
+      headers = [['Product Name', 'Category', 'Qty Sold', 'Cash Sales (Rs.)', 'Card Sales (Rs.)', 'Total Revenue (Rs.)']];
       rows = reportData.map(row => [
         row.product || row.name,
         row.category,
         row.quantity || row.quantity_sold,
+        parseFloat(row.cash_sales || 0).toFixed(2),
+        parseFloat(row.card_sales || 0).toFixed(2),
         parseFloat(row.revenue || row.total_revenue).toFixed(2)
       ]);
       totalsRow = ['TOTAL', '',
         reportData.reduce((sum, row) => sum + parseInt(row.quantity || row.quantity_sold || 0), 0),
+        reportData.reduce((sum, row) => sum + parseFloat(row.cash_sales || 0), 0).toFixed(2),
+        reportData.reduce((sum, row) => sum + parseFloat(row.card_sales || 0), 0).toFixed(2),
         reportData.reduce((sum, row) => sum + parseFloat(row.revenue || row.total_revenue || 0), 0).toFixed(2)
       ];
     } else if (reportType === 'userwise') {
@@ -231,11 +235,13 @@ const Reports = () => {
         ['Product-wise Sales Report'],
         [`Period: ${startDate} to ${endDate}`],
         [],
-        ['Product Name', 'Category', 'Qty Sold', 'Revenue (Rs.)'],
+        ['Product Name', 'Category', 'Qty Sold', 'Cash Sales (Rs.)', 'Card Sales (Rs.)', 'Total Revenue (Rs.)'],
         ...reportData.map(row => [
           row.product || row.name,
           row.category,
           row.quantity || row.quantity_sold,
+          parseFloat(row.cash_sales || 0).toFixed(2),
+          parseFloat(row.card_sales || 0).toFixed(2),
           parseFloat(row.revenue || row.total_revenue).toFixed(2)
         ]),
         [],
@@ -243,6 +249,8 @@ const Reports = () => {
           'TOTAL',
           '',
           reportData.reduce((sum, row) => sum + parseInt(row.quantity || row.quantity_sold || 0), 0),
+          reportData.reduce((sum, row) => sum + parseFloat(row.cash_sales || 0), 0).toFixed(2),
+          reportData.reduce((sum, row) => sum + parseFloat(row.card_sales || 0), 0).toFixed(2),
           reportData.reduce((sum, row) => sum + parseFloat(row.revenue || row.total_revenue || 0), 0).toFixed(2)
         ]
       ];
@@ -359,7 +367,9 @@ const Reports = () => {
             <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Product Name</th>
             <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Category</th>
             <th style={{ padding: '16px', textAlign: 'center', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Qty Sold</th>
-            <th style={{ padding: '16px', textAlign: 'right', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Revenue</th>
+            <th style={{ padding: '16px', textAlign: 'right', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Cash Sales</th>
+            <th style={{ padding: '16px', textAlign: 'right', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Card Sales</th>
+            <th style={{ padding: '16px', textAlign: 'right', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Revenue</th>
           </tr>
         </thead>
         <tbody>
@@ -368,7 +378,9 @@ const Reports = () => {
               <td style={{ padding: '16px', color: '#1a1a1a', fontSize: '14px', fontWeight: '500' }}>{row.product || row.name}</td>
               <td style={{ padding: '16px', color: '#666666', fontSize: '14px' }}>{row.category}</td>
               <td style={{ padding: '16px', color: '#2563eb', fontSize: '14px', fontWeight: '700', textAlign: 'center' }}>{row.quantity || row.quantity_sold}</td>
-              <td style={{ padding: '16px', color: '#16a34a', fontSize: '14px', fontWeight: '700', textAlign: 'right' }}>Rs. {parseFloat(row.revenue || row.total_revenue).toFixed(2)}</td>
+              <td style={{ padding: '16px', color: '#16a34a', fontSize: '14px', fontWeight: '600', textAlign: 'right' }}>Rs. {parseFloat(row.cash_sales || 0).toFixed(2)}</td>
+              <td style={{ padding: '16px', color: '#7c3aed', fontSize: '14px', fontWeight: '600', textAlign: 'right' }}>Rs. {parseFloat(row.card_sales || 0).toFixed(2)}</td>
+              <td style={{ padding: '16px', color: '#1a1a1a', fontSize: '14px', fontWeight: '700', textAlign: 'right' }}>Rs. {parseFloat(row.revenue || row.total_revenue).toFixed(2)}</td>
             </tr>
           ))}
           {reportData.length > 0 && (
@@ -377,7 +389,13 @@ const Reports = () => {
               <td style={{ padding: '16px', textAlign: 'center', fontWeight: '700', color: '#2563eb' }}>
                 {reportData.reduce((sum, row) => sum + parseInt(row.quantity || row.quantity_sold || 0), 0)}
               </td>
-              <td style={{ padding: '16px', textAlign: 'right', fontWeight: '700', fontSize: '16px', color: '#16a34a' }}>
+              <td style={{ padding: '16px', textAlign: 'right', fontWeight: '700', color: '#16a34a' }}>
+                Rs. {reportData.reduce((sum, row) => sum + parseFloat(row.cash_sales || 0), 0).toFixed(2)}
+              </td>
+              <td style={{ padding: '16px', textAlign: 'right', fontWeight: '700', color: '#7c3aed' }}>
+                Rs. {reportData.reduce((sum, row) => sum + parseFloat(row.card_sales || 0), 0).toFixed(2)}
+              </td>
+              <td style={{ padding: '16px', textAlign: 'right', fontWeight: '700', fontSize: '16px', color: '#2563eb' }}>
                 Rs. {reportData.reduce((sum, row) => sum + parseFloat(row.revenue || row.total_revenue || 0), 0).toFixed(2)}
               </td>
             </tr>

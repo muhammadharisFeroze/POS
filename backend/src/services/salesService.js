@@ -254,6 +254,8 @@ class SalesService {
            p.name as product,
            p.category,
            SUM(si.quantity) as quantity,
+           SUM(CASE WHEN s.payment_method = 'cash' THEN si.total ELSE 0 END) as cash_sales,
+           SUM(CASE WHEN s.payment_method = 'card' THEN si.total ELSE 0 END) as card_sales,
            SUM(si.total) as revenue
          FROM sale_items si
          JOIN sales s ON si.sale_id = s.id
