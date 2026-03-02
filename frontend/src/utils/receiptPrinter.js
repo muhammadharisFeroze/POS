@@ -33,7 +33,7 @@ export const generateThermalReceipt = (saleData) => {
       font-family: 'Courier New', Courier, monospace;
       /* 12px minimum for PTP-60 203dpi to avoid blurry/missing chars */
       font-size: 12px;
-      font-weight: bold;
+      font-weight: normal;
       /* Disable anti-aliasing — thermal printers need sharp pixel edges */
       -webkit-font-smoothing: none;
       -moz-osx-font-smoothing: unset;
@@ -60,20 +60,20 @@ export const generateThermalReceipt = (saleData) => {
       margin-bottom: 3mm;
     }
     .logo { max-width: 100px; height: auto; display: block; margin: 0 auto 2mm; }
-    .store-name { font-size: 15px; font-weight: bold; margin-bottom: 2mm; }
+    .store-name { font-size: 15px; font-weight: normal; margin-bottom: 2mm; }
     .store-info { font-size: 11px; font-weight: normal; line-height: 14px; }
 
     /* INVOICE INFO */
     .invoice-info { font-size: 11px; line-height: 14px; margin-bottom: 2mm; }
     .inv-row { display: flex; justify-content: space-between; margin: 1mm 0; }
-    .inv-label { font-weight: bold; min-width: 20mm; }
+    .inv-label { font-weight: normal; min-width: 20mm; }
 
     /* ITEMS */
     .items-header {
       display: flex;
       justify-content: space-between;
       font-size: 11px;
-      font-weight: bold;
+      font-weight: normal;
       border-top: 1px dashed #000;
       border-bottom: 1px dashed #000;
       padding: 1.5mm 0;
@@ -88,7 +88,6 @@ export const generateThermalReceipt = (saleData) => {
       justify-content: space-between;
       font-size: 10px;
       font-weight: normal;
-      color: #000;
       padding-left: 2mm;
       line-height: 13px;
     }
@@ -119,7 +118,7 @@ export const generateThermalReceipt = (saleData) => {
       font-size: 10px;
       line-height: 14px;
     }
-    .thank-you { font-size: 14px; font-weight: bold; margin-bottom: 1mm; }
+    .thank-you { font-size: 14px; font-weight: normal; margin-bottom: 1mm; }
     .terms-section {
       margin-top: 3mm;
       padding-top: 2mm;
@@ -130,14 +129,14 @@ export const generateThermalReceipt = (saleData) => {
       text-align: left;
     }
     .terms-title {
-      font-size: 11px; font-weight: bold;
+      font-size: 11px; font-weight: normal;
       text-decoration: underline; text-align: center;
       margin-bottom: 1.5mm;
     }
     .footer-brand {
       margin-top: 3mm; padding-top: 2mm;
       border-top: 1px dashed #000;
-      font-weight: bold; font-size: 11px;
+      font-weight: normal; font-size: 11px;
     }
     .footer-powered { font-size: 10px; font-weight: normal; margin-top: 1mm; }
 
@@ -166,8 +165,6 @@ export const generateThermalReceipt = (saleData) => {
     <div class="store-name">Feroze1888 Mills LTD</div>
     <div class="store-info">
       Point of Sale System<br>
-      Phone: +92 XXX XXXXXXX<br>
-      NTN: XXXXXXXXX
     </div>
   </div>
 
@@ -244,8 +241,10 @@ export const generateThermalReceipt = (saleData) => {
       &bull; Receipt is proof of payment. Keep for records.<br>
       &bull; Prices inclusive of applicable taxes.
     </div>
-    <div class="footer-brand">Feroze1888 Mills LTD</div>
-    <div class="footer-powered">Powered by Feroze1888 Mills LTD</div>
+  </div>
+
+  <div style="text-align:center; border-top: 1px dashed #000; margin-top: 3mm; padding-top: 2mm; font-size: 10px;">
+    Powered by Feroze1888 Mills LTD
   </div>
 
 </div>
