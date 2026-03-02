@@ -217,6 +217,10 @@ export const generateThermalReceipt = (saleData) => {
   <!-- SUMMARY -->
   <div class="summary">
     <div class="sum-row">
+      <span>Total Qty:</span>
+      <span>${items.reduce((sum, item) => sum + parseInt(item.quantity), 0)}</span>
+    </div>
+    <div class="sum-row">
       <span>Subtotal:</span>
       <span>Rs. ${parseFloat(sale.subtotal).toFixed(2)}</span>
     </div>
