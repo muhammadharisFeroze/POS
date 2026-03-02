@@ -9,7 +9,9 @@ const pool = new Pool({
   password: process.env.DB_PASSWORD,
 });
 
-pool.on('connect', () => {
+pool.on('connect', (client) => {
+  // Set timezone to Pakistan Standard Time (UTC+5)
+  client.query("SET timezone = 'Asia/Karachi'");
   console.log('✅ Database connected successfully');
 });
 
