@@ -197,3 +197,29 @@ exports.getUserWiseSalesReport = async (req, res) => {
     });
   }
 };
+
+exports.getInvoiceWiseSalesReport = async (req, res) => {
+  try {
+    const { start_date, end_date } = req.query;
+    
+    if (!start_date || !end_date) {
+      return res.status(400).json({
+        success: false,
+        message: 'Start date and end date are required'
+      });
+    }
+    
+    const report = await SalesService.getInvoiceWiseReport(start_date, end_date);
+    
+    res.json({
+      success: true,
+      data: report
+    });
+  } catch (error) {
+    console.error('Invoice-wise report error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to generate report'
+    });
+  }
+};

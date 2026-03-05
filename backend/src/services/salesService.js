@@ -318,6 +318,38 @@ class SalesService {
       throw new Error('Failed to fetch user-wise report');
     }
   }
+
+  // Get invoice-wise sales report
+  static async getInvoiceWiseReport(startDate, endDate) {
+    try {
+      const result = await pool.query(
+        `SELECT 
+           s.id,
+           s.invoice_no,
+           s.datetime,
+           s.customer_name,
+           s.payment_method,
+           s.subtotal,
+           s.discount,
+           s.total,
+           u.name as cashier_name,
+           COUNT(si.id) as item_count,
+           SUM(si.quantity) as total_quantity
+         FROM sales s
+         LEFT JOIN users u ON s.user_id = u.id
+         LEFT JOIN sale_items si ON s.id = si.sale_id
+         WHERE s.datetime::date BETWEEN $1 AND $2
+         GROUP BY s.id, s.invoice_no, s.datetime, s.customer_name, 
+                  s.payment_method, s.subtotal, s.discount, s.total, u.name
+         ORDER BY s.datetime DESC`,
+        [startDate, endDate]
+      );
+
+      return result.rows;
+    } catch (error) {
+      throw new Error('Failed to fetch invoice-wise report');
+    }
+  }
 }
 
 module.exports = SalesService;

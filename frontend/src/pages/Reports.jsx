@@ -17,9 +17,14 @@ import * as XLSX from 'xlsx';
 import './Reports.css';
 
 const Reports = () => {
+  // Get today's date in YYYY-MM-DD format
+  const getTodayDate = () => {
+    return new Date().toISOString().split('T')[0];
+  };
+
   const [reportType, setReportType] = useState('daily');
-  const [startDate, setStartDate] = useState('2026-02-01');
-  const [endDate, setEndDate] = useState('2026-02-21');
+  const [startDate, setStartDate] = useState(getTodayDate());
+  const [endDate, setEndDate] = useState(getTodayDate());
   const [reportData, setReportData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
@@ -47,6 +52,9 @@ const Reports = () => {
       // }
       else if (reportType === 'userwise') {
         response = await salesAPI.getUserWiseReport(params);
+      }
+      else if (reportType === 'invoice') {
+        response = await salesAPI.getInvoiceWiseReport(params);
       }
 
       if (response.data.success) {
@@ -77,6 +85,7 @@ const Reports = () => {
     else if (reportType === 'product') reportTitle = 'Product-wise Sales Report';
     else if (reportType === 'userwise') reportTitle = 'User-wise Transaction Report';
     else if (reportType === 'tax') reportTitle = 'Tax Report';
+    else if (reportType === 'invoice') reportTitle = 'Invoice-wise Sales Report';
     
     doc.text(reportTitle, pageWidth / 2, 15, { align: 'center' });
     
@@ -148,6 +157,27 @@ const Reports = () => {
       totalsRow = ['TOTAL',
         reportData.reduce((sum, row) => sum + parseFloat(row.subtotal || 0), 0).toFixed(2),
         reportData.reduce((sum, row) => sum + parseFloat(row.tax || row.tax_collected || 0), 0).toFixed(2),
+        reportData.reduce((sum, row) => sum + parseFloat(row.total || 0), 0).toFixed(2)
+      ];
+    } else if (reportType === 'invoice') {
+      headers = [['Invoice No', 'Date', 'Customer', 'Items', 'Qty', 'Payment', 'Subtotal', 'Discount', 'Total']];
+      rows = reportData.map(row => [
+        row.invoice_no,
+        new Date(row.datetime).toLocaleDateString('en-PK'),
+        row.customer_name,
+        row.item_count,
+        row.total_quantity,
+        row.payment_method.toUpperCase(),
+        parseFloat(row.subtotal).toFixed(2),
+        parseFloat(row.discount).toFixed(2),
+        parseFloat(row.total).toFixed(2)
+      ]);
+      totalsRow = ['TOTAL', '', '',
+        reportData.reduce((sum, row) => sum + parseInt(row.item_count || 0), 0),
+        reportData.reduce((sum, row) => sum + parseInt(row.total_quantity || 0), 0),
+        '',
+        reportData.reduce((sum, row) => sum + parseFloat(row.subtotal || 0), 0).toFixed(2),
+        reportData.reduce((sum, row) => sum + parseFloat(row.discount || 0), 0).toFixed(2),
         reportData.reduce((sum, row) => sum + parseFloat(row.total || 0), 0).toFixed(2)
       ];
     }
@@ -297,6 +327,35 @@ const Reports = () => {
           'TOTAL',
           reportData.reduce((sum, row) => sum + parseFloat(row.subtotal || 0), 0).toFixed(2),
           reportData.reduce((sum, row) => sum + parseFloat(row.tax || row.tax_collected || 0), 0).toFixed(2),
+          reportData.reduce((sum, row) => sum + parseFloat(row.total || 0), 0).toFixed(2)
+        ]
+      ];
+    } else if (reportType === 'invoice') {
+      reportTitle = 'Invoice-wise Sales Report';
+      worksheetData = [
+        ['Invoice-wise Sales Report'],
+        [`Period: ${startDate} to ${endDate}`],
+        [],
+        ['Invoice No', 'Date', 'Customer', 'Items', 'Qty', 'Payment', 'Subtotal (Rs.)', 'Discount (Rs.)', 'Total (Rs.)'],
+        ...reportData.map(row => [
+          row.invoice_no,
+          new Date(row.datetime).toLocaleString('en-PK'),
+          row.customer_name,
+          row.item_count,
+          row.total_quantity,
+          row.payment_method.toUpperCase(),
+          parseFloat(row.subtotal).toFixed(2),
+          parseFloat(row.discount).toFixed(2),
+          parseFloat(row.total).toFixed(2)
+        ]),
+        [],
+        [
+          'TOTAL', '', '',
+          reportData.reduce((sum, row) => sum + parseInt(row.item_count || 0), 0),
+          reportData.reduce((sum, row) => sum + parseInt(row.total_quantity || 0), 0),
+          '',
+          reportData.reduce((sum, row) => sum + parseFloat(row.subtotal || 0), 0).toFixed(2),
+          reportData.reduce((sum, row) => sum + parseFloat(row.discount || 0), 0).toFixed(2),
           reportData.reduce((sum, row) => sum + parseFloat(row.total || 0), 0).toFixed(2)
         ]
       ];
@@ -517,6 +576,79 @@ const Reports = () => {
     </div>
   );
 
+  const renderInvoiceWiseReport = () => (
+    <div style={{ overflowX: 'auto' }}>
+      <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 0 }}>
+        <thead>
+          <tr style={{ borderBottom: '2px solid #e0e0e0' }}>
+            <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px', minWidth: '160px', whiteSpace: 'nowrap' }}>Invoice No</th>
+            <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Date</th>
+            <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Customer</th>
+            <th style={{ padding: '16px', textAlign: 'center', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Items</th>
+            <th style={{ padding: '16px', textAlign: 'center', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Qty</th>
+            <th style={{ padding: '16px', textAlign: 'center', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Payment</th>
+            <th style={{ padding: '16px', textAlign: 'right', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Subtotal</th>
+            <th style={{ padding: '16px', textAlign: 'right', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px', minWidth: '100px', whiteSpace: 'nowrap' }}>Discount</th>
+            <th style={{ padding: '16px', textAlign: 'right', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {reportData.map((row, index) => (
+            <tr key={index} style={{ borderBottom: index < reportData.length - 1 ? '1px solid #f0f0f0' : 'none' }}>
+              <td style={{ padding: '16px', color: '#2563eb', fontSize: '14px', fontWeight: '600', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>{row.invoice_no}</td>
+              <td style={{ padding: '16px', color: '#1a1a1a', fontSize: '14px', fontWeight: '500' }}>{new Date(row.datetime).toLocaleDateString('en-PK')}</td>
+              <td style={{ padding: '16px', color: '#1a1a1a', fontSize: '14px', fontWeight: '500' }}>{row.customer_name}</td>
+              <td style={{ padding: '16px', color: '#2563eb', fontSize: '14px', fontWeight: '700', textAlign: 'center' }}>{row.item_count}</td>
+              <td style={{ padding: '16px', color: '#7c3aed', fontSize: '14px', fontWeight: '700', textAlign: 'center' }}>{row.total_quantity}</td>
+              <td style={{ padding: '16px', textAlign: 'center' }}>
+                <span style={{
+                  padding: '4px 8px',
+                  borderRadius: '4px',
+                  background: row.payment_method === 'cash' ? '#dcfce7' : '#dbeafe',
+                  color: row.payment_method === 'cash' ? '#16a34a' : '#2563eb',
+                  fontSize: '11px',
+                  fontWeight: '600',
+                  textTransform: 'uppercase'
+                }}>
+                  {row.payment_method}
+                </span>
+              </td>
+              <td style={{ padding: '16px', color: '#1a1a1a', fontSize: '14px', fontWeight: '600', textAlign: 'right' }}>Rs. {parseFloat(row.subtotal).toFixed(2)}</td>
+              <td style={{ padding: '16px', color: '#dc2626', fontSize: '14px', fontWeight: '600', textAlign: 'right', whiteSpace: 'nowrap' }}>Rs. {parseFloat(row.discount).toFixed(2)}</td>
+              <td style={{ padding: '16px', color: '#1a1a1a', fontSize: '14px', fontWeight: '700', textAlign: 'right' }}>Rs. {parseFloat(row.total).toFixed(2)}</td>
+            </tr>
+          ))}
+          {reportData.length > 0 && (
+            <tr style={{ borderTop: '2px solid #e0e0e0', background: '#fafafa' }}>
+              <td colSpan="3" style={{ padding: '16px', fontWeight: '700' }}>TOTAL</td>
+              <td style={{ padding: '16px', textAlign: 'center', fontWeight: '700', color: '#2563eb' }}>
+                {reportData.reduce((sum, row) => sum + parseInt(row.item_count || 0), 0)}
+              </td>
+              <td style={{ padding: '16px', textAlign: 'center', fontWeight: '700', color: '#7c3aed' }}>
+                {reportData.reduce((sum, row) => sum + parseInt(row.total_quantity || 0), 0)}
+              </td>
+              <td style={{ padding: '16px' }}></td>
+              <td style={{ padding: '16px', textAlign: 'right', fontWeight: '700' }}>
+                Rs. {reportData.reduce((sum, row) => sum + parseFloat(row.subtotal || 0), 0).toFixed(2)}
+              </td>
+              <td style={{ padding: '16px', textAlign: 'right', fontWeight: '700', color: '#dc2626' }}>
+                Rs. {reportData.reduce((sum, row) => sum + parseFloat(row.discount || 0), 0).toFixed(2)}
+              </td>
+              <td style={{ padding: '16px', textAlign: 'right', fontWeight: '700', fontSize: '16px', color: '#2563eb' }}>
+                Rs. {reportData.reduce((sum, row) => sum + parseFloat(row.total || 0), 0).toFixed(2)}
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+      {reportData.length === 0 && (
+        <div style={{ textAlign: 'center', padding: '40px', color: '#666666' }}>
+          No data available for the selected period
+        </div>
+      )}
+    </div>
+  );
+
   return (
     <div className="reports-page">
       <div style={{ marginBottom: '32px' }}>
@@ -545,6 +677,7 @@ const Reports = () => {
               <Option value="daily">Daily Sales Report</Option>
               <Option value="product">Product-wise Sales</Option>
               <Option value="userwise">User-wise Transactions</Option>
+              <Option value="invoice">Invoice-wise Sales</Option>
               <Option value="tax">Tax Report</Option>
             </Select>
           </div>
@@ -600,6 +733,7 @@ const Reports = () => {
           {reportType === 'product' && 'Product-wise Sales Report'}
           {reportType === 'userwise' && 'User-wise Transaction Report'}
           {reportType === 'tax' && 'Tax Report'}
+          {reportType === 'invoice' && 'Invoice-wise Sales Report'}
         </Title>
 
         {loading ? (
@@ -612,6 +746,7 @@ const Reports = () => {
             {reportType === 'product' && renderProductWiseReport()}
             {reportType === 'userwise' && renderUserWiseReport()}
             {reportType === 'tax' && renderTaxReport()}
+            {reportType === 'invoice' && renderInvoiceWiseReport()}
           </>
         )}
       </div>

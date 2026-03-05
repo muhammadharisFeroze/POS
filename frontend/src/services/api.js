@@ -93,6 +93,7 @@ export const salesAPI = {
   getProductWiseReport: (params) => api.get('/sales/reports/product-wise', { params }),
   getUserWiseReport: (params) => api.get('/sales/reports/user-wise', { params }),
   getTaxReport: (params) => api.get('/sales/reports/tax', { params }),
+  getInvoiceWiseReport: (params) => api.get('/sales/reports/invoice-wise', { params }),
 };
 
 // User APIs
