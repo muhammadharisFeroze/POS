@@ -351,7 +351,7 @@ class SalesService {
     }
   }
 
-  // Get user-wise daily sales report
+  // Get user-wise daily sales report (flat list for reports page)
   static async getUserWiseDailyReport(startDate, endDate) {
     try {
       const result = await pool.query(
@@ -375,6 +375,64 @@ class SalesService {
       return result.rows;
     } catch (error) {
       throw new Error('Failed to fetch user-wise daily report');
+    }
+  }
+
+  // Get user-wise daily sales report formatted for chart (dashboard)
+  static async getUserWiseDailyChart(startDate, endDate) {
+    try {
+      // Get all users first
+      const usersResult = await pool.query(
+        `SELECT id, name FROM users WHERE role IN ('admin', 'cashier') ORDER BY name`
+      );
+      const users = usersResult.rows;
+
+      // Get daily sales by user
+      const salesResult = await pool.query(
+        `SELECT 
+           s.datetime::date as date,
+           u.name as user_name,
+           SUM(s.total) as total_sales,
+           COUNT(s.id) as transaction_count
+         FROM sales s
+         JOIN users u ON s.user_id = u.id
+         WHERE s.datetime::date BETWEEN $1 AND $2
+         GROUP BY s.datetime::date, u.name
+         ORDER BY s.datetime::date DESC`,
+        [startDate, endDate]
+      );
+
+      // Transform data for chart: each date has sales for each user
+      const dateMap = new Map();
+      
+      // Initialize all dates in range
+      const start = new Date(startDate + 'T00:00:00');
+      const end = new Date(endDate + 'T00:00:00');
+      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+        const dateStr = d.toISOString().split('T')[0];
+        // Format date manually to avoid timezone issues
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const displayDate = `${monthNames[d.getMonth()]} ${d.getDate()}`;
+        dateMap.set(dateStr, { date: displayDate });
+        // Initialize all users with 0
+        users.forEach(user => {
+          dateMap.get(dateStr)[user.name] = 0;
+        });
+      }
+
+      // Fill in actual sales data
+      salesResult.rows.forEach(row => {
+        const rowDate = new Date(row.date);
+        const dateStr = rowDate.toISOString().split('T')[0];
+        if (dateMap.has(dateStr)) {
+          dateMap.get(dateStr)[row.user_name] = parseFloat(row.total_sales);
+        }
+      });
+
+      // Convert to array and reverse to show oldest first
+      return Array.from(dateMap.values()).reverse();
+    } catch (error) {
+      throw new Error('Failed to fetch user-wise daily chart');
     }
   }
 }

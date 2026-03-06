@@ -111,6 +111,7 @@ const Login = () => {
               disabled={loading}
               className="login-button"
               type="submit"
+              onClick={handleSubmit}
             >
               {loading ? 'Signing in...' : 'Sign In'}
             </Button>

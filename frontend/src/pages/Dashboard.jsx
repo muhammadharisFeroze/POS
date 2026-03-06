@@ -57,7 +57,7 @@ const Dashboard = () => {
         salesAPI.getDashboard(),
         salesAPI.getDailyReport({ start_date: formatDate(last30Days), end_date: formatDate(today) }),
         salesAPI.getUserWiseReport({ start_date: formatDate(last30Days), end_date: formatDate(today) }),
-        salesAPI.getUserWiseDailyReport({ start_date: formatDate(last7Days), end_date: formatDate(today) }),
+        salesAPI.getUserWiseDailyChart({ start_date: formatDate(last7Days), end_date: formatDate(today) }),
         salesAPI.getProductWiseReport({ start_date: formatDate(last30Days), end_date: formatDate(today) }),
       ]);
       

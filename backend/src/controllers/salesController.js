@@ -249,3 +249,29 @@ exports.getUserWiseDailySalesReport = async (req, res) => {
     });
   }
 };
+
+exports.getUserWiseDailyChart = async (req, res) => {
+  try {
+    const { start_date, end_date } = req.query;
+    
+    if (!start_date || !end_date) {
+      return res.status(400).json({
+        success: false,
+        message: 'Start date and end date are required'
+      });
+    }
+    
+    const report = await SalesService.getUserWiseDailyChart(start_date, end_date);
+    
+    res.json({
+      success: true,
+      data: report
+    });
+  } catch (error) {
+    console.error('User-wise daily chart error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to generate chart'
+    });
+  }
+};

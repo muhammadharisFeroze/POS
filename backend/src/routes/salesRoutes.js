@@ -10,6 +10,7 @@ router.get('/reports/daily', authenticate, salesController.getDailySalesReport);
 router.get('/reports/product-wise', authenticate, salesController.getProductWiseSalesReport);
 router.get('/reports/user-wise', authenticate, salesController.getUserWiseSalesReport);
 router.get('/reports/user-wise-daily', authenticate, salesController.getUserWiseDailySalesReport);
+router.get('/reports/user-wise-chart', authenticate, salesController.getUserWiseDailyChart);
 router.get('/reports/tax', authenticate, salesController.getTaxReport);
 router.get('/reports/invoice-wise', authenticate, salesController.getInvoiceWiseSalesReport);
 router.get('/:id', authenticate, salesController.getSaleById);
