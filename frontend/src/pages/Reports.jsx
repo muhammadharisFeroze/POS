@@ -79,7 +79,7 @@ const Reports = () => {
 
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.width;
-    
+
     // Add title
     doc.setFontSize(18);
     doc.setFont('helvetica', 'bold');
@@ -90,19 +90,19 @@ const Reports = () => {
     else if (reportType === 'tax') reportTitle = 'Tax Report';
     else if (reportType === 'invoice') reportTitle = 'Invoice-wise Sales Report';
     else if (reportType === 'userwisedaily') reportTitle = 'User-wise Daily Sales Report';
-    
+
     doc.text(reportTitle, pageWidth / 2, 15, { align: 'center' });
-    
+
     // Add date range
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
     doc.text(`Period: ${startDate} to ${endDate}`, pageWidth / 2, 22, { align: 'center' });
-    
+
     // Prepare table data based on report type
     let headers = [];
     let rows = [];
     let totalsRow = [];
-    
+
     if (reportType === 'daily') {
       headers = [['Date', 'Transactions', 'Subtotal (Rs.)', 'Tax (Rs.)', 'Total (Rs.)']];
       rows = reportData.map(row => [
@@ -164,8 +164,9 @@ const Reports = () => {
         reportData.reduce((sum, row) => sum + parseFloat(row.total || 0), 0).toFixed(2)
       ];
     } else if (reportType === 'invoice') {
-      headers = [['Invoice No', 'Date', 'Customer', 'Items', 'Qty', 'Payment', 'Subtotal', 'Discount', 'Total']];
+      headers = [['Trans ID', 'Invoice No', 'Date', 'Customer', 'Items', 'Qty', 'Payment', 'Subtotal', 'Discount', 'Total']];
       rows = reportData.map(row => [
+        row.transaction_id,
         row.invoice_no,
         new Date(row.datetime).toLocaleDateString('en-PK'),
         row.customer_name,
@@ -176,7 +177,7 @@ const Reports = () => {
         parseFloat(row.discount).toFixed(2),
         parseFloat(row.total).toFixed(2)
       ]);
-      totalsRow = ['TOTAL', '', '',
+      totalsRow = ['TOTAL', '', '', '',
         reportData.reduce((sum, row) => sum + parseInt(row.item_count || 0), 0),
         reportData.reduce((sum, row) => sum + parseInt(row.total_quantity || 0), 0),
         '',
@@ -202,10 +203,10 @@ const Reports = () => {
         reportData.reduce((sum, row) => sum + parseFloat(row.total_sales || 0), 0).toFixed(2)
       ];
     }
-    
+
     // Add totals row
     rows.push(totalsRow);
-    
+
     // Generate table
     doc.autoTable({
       head: headers,
@@ -230,7 +231,7 @@ const Reports = () => {
         }
       }
     });
-    
+
     // Add footer
     const pageCount = doc.internal.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
@@ -243,7 +244,7 @@ const Reports = () => {
         { align: 'center' }
       );
     }
-    
+
     // Save PDF
     doc.save(`${reportTitle.replace(/ /g, '_')}_${startDate}_to_${endDate}.pdf`);
   };
@@ -256,7 +257,7 @@ const Reports = () => {
 
     let worksheetData = [];
     let reportTitle = '';
-    
+
     if (reportType === 'daily') {
       reportTitle = 'Daily Sales Report';
       worksheetData = [
@@ -357,21 +358,23 @@ const Reports = () => {
         ['Invoice-wise Sales Report'],
         [`Period: ${startDate} to ${endDate}`],
         [],
-        ['Invoice No', 'Date', 'Customer', 'Items', 'Qty', 'Payment', 'Subtotal (Rs.)', 'Discount (Rs.)', 'Total (Rs.)'],
+        ['Invoice No', 'Date', 'Customer', 'Items', 'Qty', 'Payment', 'Trans ID', 'Subtotal (Rs.)', 'Discount (Rs.)', 'Total (Rs.)'],
         ...reportData.map(row => [
+
           row.invoice_no,
           new Date(row.datetime).toLocaleString('en-PK'),
           row.customer_name,
           row.item_count,
           row.total_quantity,
           row.payment_method.toUpperCase(),
+          row.transaction_id,
           parseFloat(row.subtotal).toFixed(2),
           parseFloat(row.discount).toFixed(2),
           parseFloat(row.total).toFixed(2)
         ]),
         [],
         [
-          'TOTAL', '', '',
+          'TOTAL', '', '', '',
           reportData.reduce((sum, row) => sum + parseInt(row.item_count || 0), 0),
           reportData.reduce((sum, row) => sum + parseInt(row.total_quantity || 0), 0),
           '',
@@ -406,11 +409,11 @@ const Reports = () => {
         ]
       ];
     }
-    
+
     const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, reportTitle.substring(0, 31));
-    
+
     // Save Excel file
     XLSX.writeFile(workbook, `${reportTitle.replace(/ /g, '_')}_${startDate}_to_${endDate}.xlsx`);
   };
@@ -633,6 +636,7 @@ const Reports = () => {
             <th style={{ padding: '16px', textAlign: 'center', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Items</th>
             <th style={{ padding: '16px', textAlign: 'center', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Qty</th>
             <th style={{ padding: '16px', textAlign: 'center', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Payment</th>
+            <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px', minWidth: '80px', whiteSpace: 'nowrap' }}>Trans ID</th>
             <th style={{ padding: '16px', textAlign: 'right', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Subtotal</th>
             <th style={{ padding: '16px', textAlign: 'right', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px', minWidth: '100px', whiteSpace: 'nowrap' }}>Discount</th>
             <th style={{ padding: '16px', textAlign: 'right', fontWeight: '600', color: '#1a1a1a', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total</th>
@@ -659,6 +663,7 @@ const Reports = () => {
                   {row.payment_method}
                 </span>
               </td>
+              <td style={{ padding: '16px', color: '#666666', fontSize: '14px', fontWeight: '500', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>{row.transaction_id}</td>
               <td style={{ padding: '16px', color: '#1a1a1a', fontSize: '14px', fontWeight: '600', textAlign: 'right' }}>Rs. {parseFloat(row.subtotal).toFixed(2)}</td>
               <td style={{ padding: '16px', color: '#dc2626', fontSize: '14px', fontWeight: '600', textAlign: 'right', whiteSpace: 'nowrap' }}>Rs. {parseFloat(row.discount).toFixed(2)}</td>
               <td style={{ padding: '16px', color: '#1a1a1a', fontSize: '14px', fontWeight: '700', textAlign: 'right' }}>Rs. {parseFloat(row.total).toFixed(2)}</td>
@@ -666,7 +671,7 @@ const Reports = () => {
           ))}
           {reportData.length > 0 && (
             <tr style={{ borderTop: '2px solid #e0e0e0', background: '#fafafa' }}>
-              <td colSpan="3" style={{ padding: '16px', fontWeight: '700' }}>TOTAL</td>
+              <td colSpan="4" style={{ padding: '16px', fontWeight: '700' }}>TOTAL</td>
               <td style={{ padding: '16px', textAlign: 'center', fontWeight: '700', color: '#2563eb' }}>
                 {reportData.reduce((sum, row) => sum + parseInt(row.item_count || 0), 0)}
               </td>
@@ -812,17 +817,17 @@ const Reports = () => {
             />
           </div>
           <div style={{ display: 'flex', gap: '12px' }}>
-            <Button 
-              design="Emphasized" 
-              onClick={exportToPDF} 
+            <Button
+              design="Emphasized"
+              onClick={exportToPDF}
               style={{ background: '#dc2626' }}
               disabled={loading || reportData.length === 0}
             >
               Export to PDF
             </Button>
-            <Button 
-              design="Emphasized" 
-              onClick={exportToExcel} 
+            <Button
+              design="Emphasized"
+              onClick={exportToExcel}
               style={{ background: '#16a34a' }}
               disabled={loading || reportData.length === 0}
             >

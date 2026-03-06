@@ -324,7 +324,7 @@ class SalesService {
     try {
       const result = await pool.query(
         `SELECT 
-           s.id,
+           s.transaction_id as transaction_id,
            s.invoice_no,
            s.datetime,
            s.customer_name,
