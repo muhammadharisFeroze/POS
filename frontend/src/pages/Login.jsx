@@ -40,12 +40,7 @@ const Login = () => {
     }
   };
 
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      handleSubmit(e);
-    }
-  };
+  // Form submission is handled by form onSubmit, no need for keyPress handler
 
   return (
     <div className="login-container">
@@ -95,7 +90,6 @@ const Login = () => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                onKeyPress={handleKeyPress}
                 placeholder="admin@pos.com"
                 className="form-input"
               />
@@ -107,7 +101,6 @@ const Login = () => {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                onKeyPress={handleKeyPress}
                 placeholder="Enter your password"
                 className="form-input"
               />
@@ -115,10 +108,9 @@ const Login = () => {
 
             <Button
               design="Emphasized"
-              onClick={handleSubmit}
               disabled={loading}
               className="login-button"
-              type="button"
+              type="submit"
             >
               {loading ? 'Signing in...' : 'Sign In'}
             </Button>

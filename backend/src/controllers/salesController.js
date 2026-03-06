@@ -198,7 +198,7 @@ exports.getUserWiseSalesReport = async (req, res) => {
   }
 };
 
-exports.getUserWiseDailySalesReport = async (req, res) => {
+exports.getInvoiceWiseSalesReport = async (req, res) => {
   try {
     const { start_date, end_date } = req.query;
     
@@ -209,14 +209,14 @@ exports.getUserWiseDailySalesReport = async (req, res) => {
       });
     }
     
-    const report = await SalesService.getUserWiseDailyReport(start_date, end_date);
+    const report = await SalesService.getInvoiceWiseReport(start_date, end_date);
     
     res.json({
       success: true,
       data: report
     });
   } catch (error) {
-    console.error('User-wise daily report error:', error);
+    console.error('Invoice-wise report error:', error);
     res.status(500).json({
       success: false,
       message: error.message || 'Failed to generate report'

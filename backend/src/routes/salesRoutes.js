@@ -11,6 +11,7 @@ router.get('/reports/product-wise', authenticate, salesController.getProductWise
 router.get('/reports/user-wise', authenticate, salesController.getUserWiseSalesReport);
 router.get('/reports/user-wise-daily', authenticate, salesController.getUserWiseDailySalesReport);
 router.get('/reports/tax', authenticate, salesController.getTaxReport);
+router.get('/reports/invoice-wise', authenticate, salesController.getInvoiceWiseSalesReport);
 router.get('/:id', authenticate, salesController.getSaleById);
 
 module.exports = router;
