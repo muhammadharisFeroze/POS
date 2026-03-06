@@ -350,6 +350,33 @@ class SalesService {
       throw new Error('Failed to fetch invoice-wise report');
     }
   }
+
+  // Get user-wise daily sales report
+  static async getUserWiseDailyReport(startDate, endDate) {
+    try {
+      const result = await pool.query(
+        `SELECT 
+           u.name as user_name,
+           u.role,
+           DATE(s.datetime) as sale_date,
+           COUNT(s.id) as transaction_count,
+           SUM(CASE WHEN s.payment_method = 'cash' THEN s.total ELSE 0 END) as cash_sales,
+           SUM(CASE WHEN s.payment_method = 'card' THEN s.total ELSE 0 END) as card_sales,
+           SUM(s.total) as total_sales
+         FROM users u
+         LEFT JOIN sales s ON u.id = s.user_id 
+           AND s.datetime::date BETWEEN $1 AND $2
+         GROUP BY u.id, u.name, u.role, DATE(s.datetime)
+         HAVING COUNT(s.id) > 0
+         ORDER BY DATE(s.datetime) DESC, u.name`,
+        [startDate, endDate]
+      );
+
+      return result.rows;
+    } catch (error) {
+      throw new Error('Failed to fetch user-wise daily report');
+    }
+  }
 }
 
 module.exports = SalesService;
