@@ -28,6 +28,9 @@ const Dashboard = () => {
   const [stats, setStats] = useState(null);
   const [dailySalesData, setDailySalesData] = useState([]);
   const [userWiseData, setUserWiseData] = useState([]);
+  const [userWiseDailyData, setUserWiseDailyData] = useState([]);
+  const [userList, setUserList] = useState([]);
+  const [hiddenUsers, setHiddenUsers] = useState({});
   const [productWiseData, setProductWiseData] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -39,20 +42,22 @@ const Dashboard = () => {
 
   const fetchAllDashboardData = async () => {
     try {
-      // Get today's date and last 7 days
+      // Get today's date and last 30 days for other reports
       const today = new Date();
-      const last7Days = new Date(today);
-      last7Days.setDate(last7Days.getDate() - 6);
       const last30Days = new Date(today);
       last30Days.setDate(last30Days.getDate() - 29);
+      // Get last 7 days for user-wise daily comparison
+      const last7Days = new Date(today);
+      last7Days.setDate(last7Days.getDate() - 6);
 
       const formatDate = (date) => date.toISOString().split('T')[0];
 
       // Fetch all data in parallel
-      const [dashboardRes, dailyRes, userWiseRes, productWiseRes] = await Promise.all([
+      const [dashboardRes, dailyRes, userWiseRes, userWiseDailyRes, productWiseRes] = await Promise.all([
         salesAPI.getDashboard(),
-        salesAPI.getDailyReport({ start_date: formatDate(last7Days), end_date: formatDate(today) }),
+        salesAPI.getDailyReport({ start_date: formatDate(last30Days), end_date: formatDate(today) }),
         salesAPI.getUserWiseReport({ start_date: formatDate(last30Days), end_date: formatDate(today) }),
+        salesAPI.getUserWiseDailyReport({ start_date: formatDate(last7Days), end_date: formatDate(today) }),
         salesAPI.getProductWiseReport({ start_date: formatDate(last30Days), end_date: formatDate(today) }),
       ]);
       
@@ -77,6 +82,16 @@ const Dashboard = () => {
           role: item.role,
         }));
         setUserWiseData(userData);
+      }
+
+      if (userWiseDailyRes.data.success) {
+        setUserWiseDailyData(userWiseDailyRes.data.data);
+        // Extract user names from the first data row (keys except 'date')
+        if (userWiseDailyRes.data.data.length > 0) {
+          const firstRow = userWiseDailyRes.data.data[0];
+          const users = Object.keys(firstRow).filter(key => key !== 'date');
+          setUserList(users);
+        }
       }
 
       if (productWiseRes.data.success) {
@@ -154,7 +169,7 @@ const Dashboard = () => {
           <div className="chart-header">
             <div>
               <Title level="H4" className="chart-title">📈 Daily Sales Trend</Title>
-              <Text className="chart-subtitle">Last 7 days performance</Text>
+              <Text className="chart-subtitle">Last 30 days performance</Text>
             </div>
           </div>
           <div className="chart-container">
@@ -213,6 +228,55 @@ const Dashboard = () => {
               </BarChart>
             </ResponsiveContainer>
           </div>
+        </div>
+      </div>
+
+      {/* User-wise Daily Sales Comparison Chart */}
+      <div className="chart-card" style={{ marginTop: '24px' }}>
+        <div className="chart-header">
+          <div>
+            <Title level="H4" className="chart-title">📊 Daily Sales by User</Title>
+            <Text className="chart-subtitle">User-wise sales comparison (Last 7 days)</Text>
+          </div>
+        </div>
+        <div className="chart-container">
+          <ResponsiveContainer width="100%" height={350}>
+            <BarChart data={userWiseDailyData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+              <XAxis dataKey="date" stroke="#666" style={{ fontSize: '11px' }} />
+              <YAxis stroke="#666" style={{ fontSize: '12px' }} />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: '#fff', 
+                  border: '1px solid #e0e0e0', 
+                  borderRadius: '8px',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                }} 
+                formatter={(value) => `Rs. ${parseFloat(value).toLocaleString('en-PK', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+              />
+              <Legend 
+                wrapperStyle={{ fontSize: '12px', cursor: 'pointer' }} 
+                onClick={(e) => {
+                  if (e && e.value) {
+                    setHiddenUsers(prev => ({
+                      ...prev,
+                      [e.value]: !prev[e.value]
+                    }));
+                  }
+                }}
+              />
+              {userList.map((userName, index) => (
+                <Bar 
+                  key={userName}
+                  dataKey={userName} 
+                  fill={COLORS[index % COLORS.length]} 
+                  name={userName}
+                  radius={[4, 4, 0, 0]}
+                  hide={hiddenUsers[userName] || false}
+                />
+              ))}
+            </BarChart>
+          </ResponsiveContainer>
         </div>
       </div>
 

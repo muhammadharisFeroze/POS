@@ -92,6 +92,7 @@ export const salesAPI = {
   getDailyReport: (params) => api.get('/sales/reports/daily', { params }),
   getProductWiseReport: (params) => api.get('/sales/reports/product-wise', { params }),
   getUserWiseReport: (params) => api.get('/sales/reports/user-wise', { params }),
+  getUserWiseDailyReport: (params) => api.get('/sales/reports/user-wise-daily', { params }),
   getTaxReport: (params) => api.get('/sales/reports/tax', { params }),
 };
 
